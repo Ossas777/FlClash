@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -15,7 +17,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BackScope(
+    return HomeBackScope(
       child: Consumer(
         builder: (_, ref, child) {
           final state = ref.watch(homeStateProvider);
@@ -59,63 +61,90 @@ class _HomePageView extends ConsumerStatefulWidget {
 }
 
 class _HomePageViewState extends ConsumerState<_HomePageView> {
-  _updatePageController(List<NavigationItem> navigationItems) {
-    final pageLabel = globalState.appState.pageLabel;
-    final index = navigationItems.lastIndexWhere(
-      (element) => element.label == pageLabel,
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      initialPage: _pageIndex,
+      keepPage: true,
     );
-    final pageIndex = index == -1 ? 0 : index;
-    if (globalState.pageController != null) {
-      Future.delayed(Duration(milliseconds: 200), () {
-        globalState.appController.toPage(
-          pageIndex,
-          hasAnimate: true,
-        );
-      });
-    } else {
-      globalState.pageController = PageController(
-        initialPage: pageIndex,
-        keepPage: true,
+    ref.listenManual(currentPageLabelProvider, (prev, next) {
+      if (prev != next) {
+        _toPage(next);
+      }
+    });
+    ref.listenManual(currentNavigationsStateProvider, (prev, next) {
+      if (prev?.value.length != next.value.length) {
+        _updatePageController();
+      }
+    });
+  }
+
+  int get _pageIndex {
+    final navigationItems = ref.read(currentNavigationsStateProvider).value;
+    return navigationItems.indexWhere(
+      (item) => item.label == globalState.appState.pageLabel,
+    );
+  }
+
+  _toPage(PageLabel pageLabel, [bool ignoreAnimateTo = false]) async {
+    if (!mounted) {
+      return;
+    }
+    final navigationItems = ref.read(currentNavigationsStateProvider).value;
+    final index = navigationItems.indexWhere((item) => item.label == pageLabel);
+    if (index == -1) {
+      return;
+    }
+    final isAnimateToPage = ref.read(appSettingProvider).isAnimateToPage;
+    final isMobile = ref.read(isMobileViewProvider);
+    if (isAnimateToPage && isMobile && !ignoreAnimateTo) {
+      await _pageController.animateToPage(
+        index,
+        duration: kTabScrollDuration,
+        curve: Curves.easeOut,
       );
+    } else {
+      _pageController.jumpToPage(index);
     }
   }
 
-  // _handlePageChanged(PageLabel next) {
-  //   debouncer.call(DebounceTag.pageChange, () {
-  //     if (_prevPageLabel == next) {
-  //       return;
-  //     }
-  //     if (_prevPageLabel != null) {
-  //       final prevTabPageKey = GlobalObjectKey(_prevPageLabel!);
-  //       if (prevTabPageKey.currentState is PageMixin) {
-  //         (prevTabPageKey.currentState as PageMixin).onPageHidden();
-  //       }
-  //     }
-  //     final nextTabPageKey = GlobalObjectKey(next);
-  //     if (nextTabPageKey.currentState is PageMixin) {
-  //       (nextTabPageKey.currentState as PageMixin).onPageShow();
-  //     }
-  //     _prevPageLabel = next;
-  //   }, duration: commonDuration);
-  // }
+  _updatePageController() {
+    final pageLabel = globalState.appState.pageLabel;
+    _toPage(pageLabel, true);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final navigationItems = ref.watch(currentNavigationsStateProvider).value;
-    _updatePageController(navigationItems);
     return PageView.builder(
-      controller: globalState.pageController,
+      controller: _pageController,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: navigationItems.length,
       // onPageChanged: (index) {
-      //   _handlePageChanged(navigationItems[index].label);
+      //   debouncer.call(DebounceTag.pageChange, () {
+      //     WidgetsBinding.instance.addPostFrameCallback((_) {
+      //       if (_pageIndex != index) {
+      //         final pageLabel = navigationItems[index].label;
+      //         _toPage(pageLabel, true);
+      //       }
+      //     });
+      //   });
       // },
       itemBuilder: (_, index) {
         final navigationItem = navigationItems[index];
         return KeepScope(
           keep: navigationItem.keep,
           key: Key(navigationItem.label.name),
-          child: navigationItem.fragment,
+          child: navigationItem.view,
         );
       },
     );
@@ -134,26 +163,8 @@ class CommonNavigationBar extends ConsumerWidget {
     required this.currentIndex,
   });
 
-  _updateSafeMessageOffset(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final size = context.size;
-      if (viewMode == ViewMode.mobile) {
-        globalState.safeMessageOffsetNotifier.value = Offset(
-          0,
-          -(size?.height ?? 0),
-        );
-      } else {
-        globalState.safeMessageOffsetNotifier.value = Offset(
-          size?.width ?? 0,
-          0,
-        );
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context, ref) {
-    _updateSafeMessageOffset(context);
     if (viewMode == ViewMode.mobile) {
       return NavigationBarTheme(
         data: _NavigationBarDefaultsM3(context),
@@ -166,7 +177,9 @@ class CommonNavigationBar extends ConsumerWidget {
                 ),
               )
               .toList(),
-          onDestinationSelected: globalState.appController.toPage,
+          onDestinationSelected: (index) {
+            globalState.appController.toPage(navigationItems[index].label);
+          },
           selectedIndex: currentIndex,
         ),
       );
@@ -177,40 +190,46 @@ class CommonNavigationBar extends ConsumerWidget {
       child: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              child: IntrinsicHeight(
-                child: NavigationRail(
-                  backgroundColor: context.colorScheme.surfaceContainer,
-                  selectedIconTheme: IconThemeData(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  unselectedIconTheme: IconThemeData(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  selectedLabelTextStyle:
-                      context.textTheme.labelLarge!.copyWith(
-                    color: context.colorScheme.onSurface,
-                  ),
-                  unselectedLabelTextStyle:
-                      context.textTheme.labelLarge!.copyWith(
-                    color: context.colorScheme.onSurface,
-                  ),
-                  destinations: navigationItems
-                      .map(
-                        (e) => NavigationRailDestination(
-                          icon: e.icon,
-                          label: Text(
-                            Intl.message(e.label.name),
+            child: ScrollConfiguration(
+              behavior: HiddenBarScrollBehavior(),
+              child: SingleChildScrollView(
+                child: IntrinsicHeight(
+                  child: NavigationRail(
+                    backgroundColor: context.colorScheme.surfaceContainer,
+                    selectedIconTheme: IconThemeData(
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                    unselectedIconTheme: IconThemeData(
+                      color: context.colorScheme.onSurfaceVariant,
+                    ),
+                    selectedLabelTextStyle:
+                        context.textTheme.labelLarge!.copyWith(
+                      color: context.colorScheme.onSurface,
+                    ),
+                    unselectedLabelTextStyle:
+                        context.textTheme.labelLarge!.copyWith(
+                      color: context.colorScheme.onSurface,
+                    ),
+                    destinations: navigationItems
+                        .map(
+                          (e) => NavigationRailDestination(
+                            icon: e.icon,
+                            label: Text(
+                              Intl.message(e.label.name),
+                            ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                  onDestinationSelected: globalState.appController.toPage,
-                  extended: false,
-                  selectedIndex: currentIndex,
-                  labelType: showLabel
-                      ? NavigationRailLabelType.all
-                      : NavigationRailLabelType.none,
+                        )
+                        .toList(),
+                    onDestinationSelected: (index) {
+                      globalState.appController
+                          .toPage(navigationItems[index].label);
+                    },
+                    extended: false,
+                    selectedIndex: currentIndex,
+                    labelType: showLabel
+                        ? NavigationRailLabelType.all
+                        : NavigationRailLabelType.none,
+                  ),
                 ),
               ),
             ),
@@ -264,7 +283,7 @@ class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
       return IconThemeData(
         size: 24.0,
         color: states.contains(WidgetState.disabled)
-            ? _colors.onSurfaceVariant.withOpacity(0.38)
+            ? _colors.onSurfaceVariant.opacity38
             : states.contains(WidgetState.selected)
                 ? _colors.onSecondaryContainer
                 : _colors.onSurfaceVariant,
@@ -285,10 +304,35 @@ class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
       return style.apply(
           overflow: TextOverflow.ellipsis,
           color: states.contains(WidgetState.disabled)
-              ? _colors.onSurfaceVariant.withOpacity(0.38)
+              ? _colors.onSurfaceVariant.opacity38
               : states.contains(WidgetState.selected)
                   ? _colors.onSurface
                   : _colors.onSurfaceVariant);
     });
+  }
+}
+
+class HomeBackScope extends StatelessWidget {
+  final Widget child;
+
+  const HomeBackScope({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (Platform.isAndroid) {
+      return CommonPopScope(
+        onPop: () async {
+          final canPop = Navigator.canPop(context);
+          if (canPop) {
+            Navigator.pop(context);
+          } else {
+            await globalState.appController.handleBackOrExit();
+          }
+          return false;
+        },
+        child: child,
+      );
+    }
+    return child;
   }
 }

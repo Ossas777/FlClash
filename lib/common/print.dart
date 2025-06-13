@@ -1,4 +1,3 @@
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,14 +15,11 @@ class CommonPrint {
   log(String? text) {
     final payload = "[FlClash] $text";
     debugPrint(payload);
-    if (globalState.isService) {
+    if (!globalState.isInit) {
       return;
     }
     globalState.appController.addLog(
-      Log(
-        logLevel: LogLevel.info,
-        payload: payload,
-      ),
+      Log.app(payload),
     );
   }
 }

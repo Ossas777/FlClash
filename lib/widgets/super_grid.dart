@@ -7,7 +7,6 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/widgets/activate_box.dart';
 import 'package:fl_clash/widgets/card.dart';
 import 'package:fl_clash/widgets/grid.dart';
-import 'package:fl_clash/widgets/sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -18,8 +17,7 @@ class SuperGrid extends StatefulWidget {
   final double mainAxisSpacing;
   final double crossAxisSpacing;
   final int crossAxisCount;
-  final void Function(List<GridItem> newChildren)? onSave;
-  final List<GridItem> Function(List<GridItem> newChildren)? addedItemsBuilder;
+  final VoidCallback? onUpdate;
 
   const SuperGrid({
     super.key,
@@ -27,8 +25,7 @@ class SuperGrid extends StatefulWidget {
     this.crossAxisCount = 1,
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
-    this.onSave,
-    this.addedItemsBuilder,
+    this.onUpdate,
   });
 
   @override
@@ -37,7 +34,7 @@ class SuperGrid extends StatefulWidget {
 
 class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   final ValueNotifier<List<GridItem>> _childrenNotifier = ValueNotifier([]);
-  final ValueNotifier<List<GridItem>> addedChildrenNotifier = ValueNotifier([]);
+  List<GridItem> children = [];
 
   int get length => _childrenNotifier.value.length;
   List<int> _tempIndexList = [];
@@ -49,13 +46,12 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   List<Offset> _offsets = [];
   Offset _parentOffset = Offset.zero;
   EdgeDraggingAutoScroller? _edgeDraggingAutoScroller;
-  final ValueNotifier<bool> isEditNotifier = ValueNotifier(false);
-
   Map<int, Tween<Offset>> _transformTweenMap = {};
 
   final ValueNotifier<bool> _animating = ValueNotifier(false);
 
   final _dragWidgetSizeNotifier = ValueNotifier(Size.zero);
+
   final _dragIndexNotifier = ValueNotifier(-1);
 
   late AnimationController _transformController;
@@ -94,31 +90,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _containerSize = context.size!;
   }
 
-  showAddModal() {
-    if (!isEditNotifier.value) {
-      return;
-    }
-    showSheet(
-      width: 360,
-      context: context,
-      body: ValueListenableBuilder(
-        valueListenable: addedChildrenNotifier,
-        builder: (_, value, __) {
-          return _AddedWidgetsModal(
-            items: value,
-            onAdd: (gridItem) {
-              _childrenNotifier.value = List.from(_childrenNotifier.value)
-                ..add(
-                  gridItem,
-                );
-            },
-          );
-        },
-      ),
-      title: appLocalizations.add,
-    );
-  }
-
   _initState() {
     _transformController.value = 0;
     _sizes = List.generate(length, (index) => Size.zero);
@@ -134,21 +105,17 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _targetIndex = -1;
   }
 
-  _handleChildrenNotifierChange() {
-    addedChildrenNotifier.value = widget.addedItemsBuilder != null
-        ? widget.addedItemsBuilder!(_childrenNotifier.value)
-        : [];
-  }
-
   @override
   void initState() {
     super.initState();
+    _childrenNotifier.addListener(() {
+      children = _childrenNotifier.value;
+      if (widget.onUpdate != null) {
+        widget.onUpdate!();
+      }
+    });
 
     _childrenNotifier.value = widget.children;
-
-    _childrenNotifier.addListener(_handleChildrenNotifierChange);
-
-    isEditNotifier.addListener(_handleIsEditChange);
 
     _fakeDragWidgetController = AnimationController.unbounded(
       vsync: this,
@@ -159,6 +126,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
       vsync: this,
       duration: Duration(milliseconds: 120),
     );
+
     _shakeAnimation = Tween<double>(
       begin: -0.012,
       end: 0.012,
@@ -177,15 +145,11 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _initState();
   }
 
-  _handleIsEditChange() async {
-    _handleChildrenNotifierChange();
-    if (isEditNotifier.value == false) {
-      if (widget.onSave != null) {
-        await _transformCompleter?.future;
-        await Future.delayed(commonDuration);
-        widget.onSave!(_childrenNotifier.value);
-      }
-    }
+  handleAdd(GridItem gridItem) {
+    _childrenNotifier.value = List.from(_childrenNotifier.value)
+      ..add(
+        gridItem,
+      );
   }
 
   @override
@@ -300,7 +264,10 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
   }
 
   _handleDragEnd(DraggableDetails details) async {
-    debouncer.cancel(DebounceTag.handleWill);
+    final children = List<GridItem>.from(_childrenNotifier.value);
+    children.insert(_targetIndex, children.removeAt(_dragIndexNotifier.value));
+    this.children = children;
+    debouncer.cancel(FunctionTag.handleWill);
     if (_targetIndex == -1) {
       return;
     }
@@ -309,7 +276,12 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
       stiffness: 100,
       damping: 10,
     );
-    final simulation = SpringSimulation(spring, 0, 1, 0);
+    final simulation = SpringSimulation(
+      spring,
+      0,
+      1,
+      0,
+    );
     _fakeDragWidgetAnimation = Tween(
       begin: details.offset - _parentOffset,
       end: _targetOffset,
@@ -324,8 +296,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _fakeDragWidgetAnimation = null;
     _transformTweenMap.clear();
     _transformAnimationMap.clear();
-    final children = List<GridItem>.from(_childrenNotifier.value);
-    children.insert(_targetIndex, children.removeAt(_dragIndexNotifier.value));
     _childrenNotifier.value = children;
     _initState();
   }
@@ -375,17 +345,15 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _initState();
   }
 
-  Widget _wrapTransform(Widget rawChild, int index) {
+  Widget _buildTransform(Widget rawChild, int index) {
     return ValueListenableBuilder(
       valueListenable: _animating,
       builder: (_, animating, child) {
-        if (animating) {
-          if (_dragIndexNotifier.value == index) {
-            return _sizeBoxWrap(
-              Container(),
-              index,
-            );
-          }
+        if (animating && _dragIndexNotifier.value == index) {
+          return _buildSizeBox(
+            Container(),
+            index,
+          );
         }
         return child!;
       },
@@ -432,7 +400,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     return nextOffset;
   }
 
-  Widget _sizeBoxWrap(Widget child, int index) {
+  Widget _buildSizeBox(Widget child, int index) {
     return ValueListenableBuilder(
       valueListenable: _dragWidgetSizeNotifier,
       builder: (_, size, child) {
@@ -445,7 +413,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     );
   }
 
-  Widget _ignoreWrap(Widget child) {
+  Widget _buildInactivate(Widget child) {
     return ValueListenableBuilder(
       valueListenable: _animating,
       builder: (_, animating, child) {
@@ -461,7 +429,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     );
   }
 
-  Widget _shakeWrap(Widget child) {
+  Widget _buildShake(Widget child) {
     final random = 0.7 + Random().nextDouble() * 0.3;
     _shakeController.stop();
     _shakeController.repeat(reverse: true);
@@ -477,28 +445,53 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     );
   }
 
-  Widget _draggableWrap({
+  Widget _buildDraggable({
     required Widget childWhenDragging,
     required Widget feedback,
-    required Widget target,
+    required Widget item,
     required int index,
   }) {
-    final shakeTarget = ValueListenableBuilder(
-      valueListenable: _dragIndexNotifier,
-      builder: (_, dragIndex, child) {
-        if (dragIndex == index) {
-          return child!;
-        }
-        return _shakeWrap(
-          _DeletableContainer(
-            onDelete: () {
-              _handleDelete(index);
-            },
-            child: child!,
-          ),
+    final target = DragTarget<int>(
+      builder: (_, __, ___) {
+        return AbsorbPointer(
+          child: item,
         );
       },
-      child: target,
+      onWillAcceptWithDetails: (_) {
+        debouncer.call(
+          FunctionTag.handleWill,
+          _handleWill,
+          args: [index],
+        );
+        return false;
+      },
+    );
+    final shakeTarget = ValueListenableBuilder(
+      valueListenable: _animating,
+      builder: (_, animating, child) {
+        if (animating) {
+          return target;
+        } else {
+          return child!;
+        }
+      },
+      child: ValueListenableBuilder(
+        valueListenable: _dragIndexNotifier,
+        builder: (_, dragIndex, child) {
+          if (dragIndex == index) {
+            return child!;
+          }
+          return _buildShake(
+            _DeletableContainer(
+              onDelete: () {
+                _handleDelete(index);
+              },
+              child: child!,
+            ),
+          );
+        },
+        child: target,
+      ),
     );
     final draggableChild = system.isDesktop
         ? Draggable(
@@ -531,16 +524,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
             },
             child: shakeTarget,
           );
-    return ValueListenableBuilder(
-      valueListenable: isEditNotifier,
-      builder: (_, isEdit, child) {
-        if (!isEdit) {
-          return target;
-        }
-        return child!;
-      },
-      child: draggableChild,
-    );
+    return draggableChild;
   }
 
   Widget _builderItem(int index) {
@@ -554,19 +538,17 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
           _itemContexts[index] = context;
           final childWhenDragging = ActivateBox(
             child: Opacity(
-              opacity: 0.3,
-              child: _sizeBoxWrap(
+              opacity: 0.6,
+              child: _buildSizeBox(
                 CommonCard(
-                  child: Container(
-                    color: context.colorScheme.secondaryContainer,
-                  ),
+                  child: child,
                 ),
                 index,
               ),
             ),
           );
           final feedback = ActivateBox(
-            child: _sizeBoxWrap(
+            child: _buildSizeBox(
               CommonCard(
                 child: Material(
                   elevation: 6,
@@ -576,25 +558,11 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
               index,
             ),
           );
-          final target = DragTarget<int>(
-            builder: (_, __, ___) {
-              return child;
-            },
-            onWillAcceptWithDetails: (_) {
-              debouncer.call(
-                DebounceTag.handleWill,
-                _handleWill,
-                args: [index],
-              );
-              return false;
-            },
-          );
-
-          return _wrapTransform(
-            _draggableWrap(
+          return _buildTransform(
+            _buildDraggable(
               childWhenDragging: childWhenDragging,
               feedback: feedback,
-              target: target,
+              item: child,
               index: index,
             ),
             index,
@@ -612,7 +580,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
         if (!animating || _fakeDragWidgetAnimation == null || index == -1) {
           return Container();
         }
-        return _sizeBoxWrap(
+        return _buildSizeBox(
           AnimatedBuilder(
             animation: _fakeDragWidgetAnimation!,
             builder: (_, child) {
@@ -639,10 +607,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     _transformController.dispose();
     _dragIndexNotifier.dispose();
     _animating.dispose();
-    _childrenNotifier.removeListener(_handleChildrenNotifierChange);
     _childrenNotifier.dispose();
-    isEditNotifier.removeListener(_handleIsEditChange);
-    isEditNotifier.dispose();
     super.dispose();
   }
 
@@ -651,7 +616,7 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
     return DeferredPointerHandler(
       child: Stack(
         children: [
-          _ignoreWrap(
+          _buildInactivate(
             ValueListenableBuilder(
               valueListenable: _childrenNotifier,
               builder: (_, children, __) {
@@ -670,46 +635,6 @@ class SuperGridState extends State<SuperGrid> with TickerProviderStateMixin {
           ),
           _buildFakeTransformWidget(),
         ],
-      ),
-    );
-  }
-}
-
-class _AddedWidgetsModal extends StatelessWidget {
-  final List<GridItem> items;
-  final Function(GridItem item) onAdd;
-
-  const _AddedWidgetsModal({
-    required this.items,
-    required this.onAdd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DeferredPointerHandler(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(
-          16,
-        ),
-        child: Grid(
-          crossAxisCount: 8,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: items
-              .map(
-                (item) => item.wrap(
-                  builder: (child) {
-                    return _AddedContainer(
-                      onAdd: () {
-                        onAdd(item);
-                      },
-                      child: child,
-                    );
-                  },
-                ),
-              )
-              .toList(),
-        ),
       ),
     );
   }
@@ -818,71 +743,6 @@ class _DeletableContainerState extends State<_DeletableContainer>
               ),
             ),
           )
-      ],
-    );
-  }
-}
-
-class _AddedContainer extends StatefulWidget {
-  final Widget child;
-  final VoidCallback onAdd;
-
-  const _AddedContainer({
-    required this.child,
-    required this.onAdd,
-  });
-
-  @override
-  State<_AddedContainer> createState() => _AddedContainerState();
-}
-
-class _AddedContainerState extends State<_AddedContainer> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(_AddedContainer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.child != widget.child) {}
-  }
-
-  _handleAdd() async {
-    widget.onAdd();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        ActivateBox(
-          child: widget.child,
-        ),
-        Positioned(
-          top: -8,
-          right: -8,
-          child: DeferPointer(
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: IconButton.filled(
-                iconSize: 20,
-                padding: EdgeInsets.all(2),
-                onPressed: _handleAdd,
-                icon: Icon(
-                  Icons.add,
-                ),
-              ),
-            ),
-          ),
-        )
       ],
     );
   }

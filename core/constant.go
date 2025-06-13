@@ -3,22 +3,48 @@ package main
 import (
 	"encoding/json"
 	"github.com/metacubex/mihomo/adapter/provider"
+	P "github.com/metacubex/mihomo/component/process"
 	"github.com/metacubex/mihomo/config"
+	"github.com/metacubex/mihomo/constant"
+	"github.com/metacubex/mihomo/log"
+	"github.com/metacubex/mihomo/tunnel"
+	"net/netip"
 	"time"
 )
 
-type ConfigExtendedParams struct {
-	IsPatch      bool              `json:"is-patch"`
-	IsCompatible bool              `json:"is-compatible"`
-	SelectedMap  map[string]string `json:"selected-map"`
-	TestURL      *string           `json:"test-url"`
-	OverrideDns  bool              `json:"override-dns"`
+type InitParams struct {
+	HomeDir string `json:"home-dir"`
+	Version int    `json:"version"`
 }
 
-type GenerateConfigParams struct {
-	ProfileId string               `json:"profile-id"`
-	Config    config.RawConfig     `json:"config" `
-	Params    ConfigExtendedParams `json:"params"`
+type SetupParams struct {
+	Config      *config.RawConfig `json:"config"`
+	SelectedMap map[string]string `json:"selected-map"`
+	TestURL     string            `json:"test-url"`
+}
+
+type UpdateParams struct {
+	Tun                *tunSchema         `json:"tun"`
+	AllowLan           *bool              `json:"allow-lan"`
+	MixedPort          *int               `json:"mixed-port"`
+	FindProcessMode    *P.FindProcessMode `json:"find-process-mode"`
+	Mode               *tunnel.TunnelMode `json:"mode"`
+	LogLevel           *log.LogLevel      `json:"log-level"`
+	IPv6               *bool              `json:"ipv6"`
+	Sniffing           *bool              `json:"sniffing"`
+	TCPConcurrent      *bool              `json:"tcp-concurrent"`
+	ExternalController *string            `json:"external-controller"`
+	Interface          *string            `json:"interface-name"`
+	UnifiedDelay       *bool              `json:"unified-delay"`
+}
+
+type tunSchema struct {
+	Enable       bool               `yaml:"enable" json:"enable"`
+	Device       *string            `yaml:"device" json:"device"`
+	Stack        *constant.TUNStack `yaml:"stack" json:"stack"`
+	DNSHijack    *[]string          `yaml:"dns-hijack" json:"dns-hijack"`
+	AutoRoute    *bool              `yaml:"auto-route" json:"auto-route"`
+	RouteAddress *[]netip.Prefix    `yaml:"route-address" json:"route-address,omitempty"`
 }
 
 type ChangeProxyParams struct {
@@ -58,6 +84,7 @@ const (
 	asyncTestDelayMethod           Method = "asyncTestDelay"
 	getConnectionsMethod           Method = "getConnections"
 	closeConnectionsMethod         Method = "closeConnections"
+	resetConnectionsMethod         Method = "resetConnectionsMethod"
 	closeConnectionMethod          Method = "closeConnection"
 	getExternalProvidersMethod     Method = "getExternalProviders"
 	getExternalProviderMethod      Method = "getExternalProvider"
@@ -70,16 +97,14 @@ const (
 	stopLogMethod                  Method = "stopLog"
 	startListenerMethod            Method = "startListener"
 	stopListenerMethod             Method = "stopListener"
-	startTunMethod                 Method = "startTun"
-	stopTunMethod                  Method = "stopTun"
 	updateDnsMethod                Method = "updateDns"
-	setProcessMapMethod            Method = "setProcessMap"
-	setFdMapMethod                 Method = "setFdMap"
 	setStateMethod                 Method = "setState"
 	getAndroidVpnOptionsMethod     Method = "getAndroidVpnOptions"
 	getRunTimeMethod               Method = "getRunTime"
 	getCurrentProfileNameMethod    Method = "getCurrentProfileName"
-	getProfileMethod               Method = "getProfile"
+	crashMethod                    Method = "crash"
+	setupConfigMethod              Method = "setupConfig"
+	getConfigMethod                Method = "getConfig"
 )
 
 type Method string
@@ -107,21 +132,4 @@ const (
 func (message *Message) Json() (string, error) {
 	data, err := json.Marshal(message)
 	return string(data), err
-}
-
-type InvokeMessage struct {
-	Type InvokeType  `json:"type"`
-	Data interface{} `json:"data"`
-}
-
-type InvokeType string
-
-const (
-	ProtectInvoke InvokeType = "protect"
-	ProcessInvoke InvokeType = "process"
-)
-
-func (message *InvokeMessage) Json() string {
-	data, _ := json.Marshal(message)
-	return string(data)
 }

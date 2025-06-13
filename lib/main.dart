@@ -5,7 +5,6 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/plugins/tile.dart';
 import 'package:fl_clash/plugins/vpn.dart';
@@ -46,7 +45,6 @@ Future<void> _service(List<String> flags) async {
       onStop: () async {
         await app?.tip(appLocalizations.stopVpn);
         clashLibHandler.stopListener();
-        clashLibHandler.stopTun();
         await vpn?.stop();
         exit(0);
       },
@@ -63,42 +61,10 @@ Future<void> _service(List<String> flags) async {
 
   vpn?.addListener(
     _VpnListenerWithService(
-      onStarted: (int fd) {
-        commonPrint.log("vpn started fd: $fd");
-        final time = clashLibHandler.startTun(fd);
-        commonPrint.log("vpn start tun time: $time");
-      },
       onDnsChanged: (String dns) {
         clashLibHandler.updateDns(dns);
       },
     ),
-  );
-
-  final invokeReceiverPort = ReceivePort();
-
-  clashLibHandler.attachInvokePort(
-    invokeReceiverPort.sendPort.nativePort,
-  );
-
-  invokeReceiverPort.listen(
-    (message) async {
-      final invokeMessage = InvokeMessage.fromJson(json.decode(message));
-      switch (invokeMessage.type) {
-        case InvokeMessageType.protect:
-          final fd = Fd.fromJson(invokeMessage.data);
-          await vpn?.setProtect(fd.value);
-          clashLibHandler.setFdMap(fd.id);
-        case InvokeMessageType.process:
-          final process = ProcessData.fromJson(invokeMessage.data);
-          final processName = await vpn?.resolverProcess(process) ?? "";
-          clashLibHandler.setProcessMap(
-            ProcessMapItem(
-              id: process.id,
-              value: processName,
-            ),
-          );
-      }
-    },
   );
   if (!quickStart) {
     _handleMainIpc(clashLibHandler);
@@ -107,24 +73,36 @@ Future<void> _service(List<String> flags) async {
     await ClashCore.initGeo();
     app?.tip(appLocalizations.startVpn);
     final homeDirPath = await appPath.homeDirPath;
-    clashLibHandler
-        .quickStart(
-      homeDirPath,
-      globalState.getUpdateConfigParams(),
-      globalState.getCoreState(),
-    )
-        .then(
-      (res) async {
-        if (res.isNotEmpty) {
-          await vpn?.stop();
-          exit(0);
-        }
-        await vpn?.start(
-          clashLibHandler.getAndroidVpnOptions(),
-        );
-        clashLibHandler.startListener();
-      },
+    final version = await system.version;
+    final clashConfig = globalState.config.patchClashConfig.copyWith.tun(
+      enable: false,
     );
+    Future(() async {
+      final profileId = globalState.config.currentProfileId;
+      if (profileId == null) {
+        return;
+      }
+      final params = await globalState.getSetupParams(
+        pathConfig: clashConfig,
+      );
+      final res = await clashLibHandler.quickStart(
+        InitParams(
+          homeDir: homeDirPath,
+          version: version,
+        ),
+        params,
+        globalState.getCoreState(),
+      );
+      debugPrint(res);
+      if (res.isNotEmpty) {
+        await vpn?.stop();
+        exit(0);
+      }
+      await vpn?.start(
+        clashLibHandler.getAndroidVpnOptions(),
+      );
+      clashLibHandler.startListener();
+    });
   }
 }
 
@@ -164,20 +142,11 @@ class _TileListenerWithService with TileListener {
 
 @immutable
 class _VpnListenerWithService with VpnListener {
-  final Function(int fd) _onStarted;
   final Function(String dns) _onDnsChanged;
 
   const _VpnListenerWithService({
-    required Function(int fd) onStarted,
     required Function(String dns) onDnsChanged,
-  })  : _onStarted = onStarted,
-        _onDnsChanged = onDnsChanged;
-
-  @override
-  void onStarted(int fd) {
-    super.onStarted(fd);
-    _onStarted(fd);
-  }
+  }) : _onDnsChanged = onDnsChanged;
 
   @override
   void onDnsChanged(String dns) {

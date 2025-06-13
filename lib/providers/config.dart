@@ -120,7 +120,7 @@ class Profiles extends _$Profiles with AutoDisposeNotifierMixin {
             (element) => element.label == realLabel && element.id != id) !=
         -1;
     if (hasDup) {
-      return _getLabel(other.getOverwriteLabel(realLabel), id);
+      return _getLabel(utils.getOverwriteLabel(realLabel), id);
     } else {
       return label;
     }
@@ -137,6 +137,15 @@ class Profiles extends _$Profiles with AutoDisposeNotifierMixin {
       profilesTemp.add(updateProfile);
     } else {
       profilesTemp[index] = updateProfile;
+    }
+    state = profilesTemp;
+  }
+
+  updateProfile(String profileId, Profile Function(Profile profile) builder) {
+    final List<Profile> profilesTemp = List.from(state);
+    final index = profilesTemp.indexWhere((element) => element.id == profileId);
+    if (index != -1) {
+      profilesTemp[index] = builder(profilesTemp[index]);
     }
     state = profilesTemp;
   }
@@ -228,6 +237,57 @@ class ProxiesStyleSetting extends _$ProxiesStyleSetting
 
   updateState(ProxiesStyle Function(ProxiesStyle state) builder) {
     state = builder(state);
+  }
+}
+
+@riverpod
+class ScriptState extends _$ScriptState with AutoDisposeNotifierMixin {
+  @override
+  ScriptProps build() {
+    return globalState.config.scriptProps;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.config = globalState.config.copyWith(
+      scriptProps: value,
+    );
+  }
+
+  setScript(Script script) {
+    final list = List<Script>.from(state.scripts);
+    final index = list.indexWhere((item) => item.id == script.id);
+    if (index != -1) {
+      list[index] = script;
+    } else {
+      list.add(script);
+    }
+    state = state.copyWith(
+      scripts: list,
+    );
+  }
+
+  setId(String id) {
+    state = state.copyWith(
+      currentId: state.currentId != id ? id : null,
+    );
+  }
+
+  del(String id) {
+    final list = List<Script>.from(state.scripts);
+    final index = list.indexWhere((item) => item.label == id);
+    if (index != -1) {
+      list.removeAt(index);
+    }
+    final nextId = id == state.currentId ? null : state.currentId;
+    state = state.copyWith(
+      scripts: list,
+      currentId: nextId,
+    );
+  }
+
+  isExits(String label) {
+    return state.scripts.indexWhere((item) => item.label == label) != -1;
   }
 }
 

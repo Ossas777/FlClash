@@ -1,9 +1,8 @@
 // ignore_for_file: invalid_annotation_target
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import '../enum/enum.dart';
 
 part 'generated/clash_config.freezed.dart';
 part 'generated/clash_config.g.dart';
@@ -122,7 +121,7 @@ class ProxyGroup with _$ProxyGroup {
     String? filter,
     @JsonKey(name: "expected-filter") String? excludeFilter,
     @JsonKey(name: "exclude-type") String? excludeType,
-    @JsonKey(name: "expected-status") int? expectedStatus,
+    @JsonKey(name: "expected-status") dynamic expectedStatus,
     bool? hidden,
     String? icon,
   }) = _ProxyGroup;
@@ -132,11 +131,57 @@ class ProxyGroup with _$ProxyGroup {
 }
 
 @freezed
+class RuleProvider with _$RuleProvider {
+  const factory RuleProvider({
+    required String name,
+  }) = _RuleProvider;
+
+  factory RuleProvider.fromJson(Map<String, Object?> json) =>
+      _$RuleProviderFromJson(json);
+}
+
+@freezed
+class Sniffer with _$Sniffer {
+  const factory Sniffer({
+    @Default(false) bool enable,
+    @Default(true) @JsonKey(name: "override-destination") bool overrideDest,
+    @Default([]) List<String> sniffing,
+    @Default([]) @JsonKey(name: "force-domain") List<String> forceDomain,
+    @Default([]) @JsonKey(name: "skip-src-address") List<String> skipSrcAddress,
+    @Default([]) @JsonKey(name: "skip-dst-address") List<String> skipDstAddress,
+    @Default([]) @JsonKey(name: "skip-domain") List<String> skipDomain,
+    @Default([]) @JsonKey(name: "port-whitelist") List<String> port,
+    @Default(true) @JsonKey(name: "force-dns-mapping") bool forceDnsMapping,
+    @Default(true) @JsonKey(name: "parse-pure-ip") bool parsePureIp,
+    @Default({}) Map<String, SnifferConfig> sniff,
+  }) = _Sniffer;
+
+  factory Sniffer.fromJson(Map<String, Object?> json) =>
+      _$SnifferFromJson(json);
+}
+
+List<String> _formJsonPorts(List? ports) {
+  return ports?.map((item) => item.toString()).toList() ?? [];
+}
+
+@freezed
+class SnifferConfig with _$SnifferConfig {
+  const factory SnifferConfig({
+    @Default([]) @JsonKey(fromJson: _formJsonPorts) List<String> ports,
+    @JsonKey(name: "override-destination") bool? overrideDest,
+  }) = _SnifferConfig;
+
+  factory SnifferConfig.fromJson(Map<String, Object?> json) =>
+      _$SnifferConfigFromJson(json);
+}
+
+@freezed
 class Tun with _$Tun {
   const factory Tun({
     @Default(false) bool enable,
     @Default(appName) String device,
-    @Default(TunStack.gvisor) TunStack stack,
+    @JsonKey(name: "auto-route") @Default(false) bool autoRoute,
+    @Default(TunStack.mixed) TunStack stack,
     @JsonKey(name: "dns-hijack") @Default(["any:53"]) List<String> dnsHijack,
     @JsonKey(name: "route-address") @Default([]) List<String> routeAddress,
   }) = _Tun;
@@ -274,10 +319,135 @@ class GeoXUrl with _$GeoXUrl {
 }
 
 @freezed
+class ParsedRule with _$ParsedRule {
+  const factory ParsedRule({
+    required RuleAction ruleAction,
+    String? content,
+    String? ruleTarget,
+    String? ruleProvider,
+    String? subRule,
+    @Default(false) bool noResolve,
+    @Default(false) bool src,
+  }) = _ParsedRule;
+
+  factory ParsedRule.parseString(String value) {
+    final splits = value.split(",");
+    final shortSplits = splits
+        .where(
+          (item) => !item.contains("src") && !item.contains("no-resolve"),
+        )
+        .toList();
+    final ruleAction = RuleAction.values.firstWhere(
+      (item) => item.value == shortSplits.first,
+      orElse: () => RuleAction.DOMAIN,
+    );
+    String? subRule;
+    String? ruleTarget;
+
+    if (ruleAction == RuleAction.SUB_RULE) {
+      subRule = shortSplits.last;
+    } else {
+      ruleTarget = shortSplits.last;
+    }
+
+    String? content;
+    String? ruleProvider;
+
+    if (ruleAction == RuleAction.RULE_SET) {
+      ruleProvider = shortSplits.sublist(1, shortSplits.length - 1).join(",");
+    } else {
+      content = shortSplits.sublist(1, shortSplits.length - 1).join(",");
+    }
+
+    return ParsedRule(
+      ruleAction: ruleAction,
+      content: content,
+      src: splits.contains("src"),
+      ruleProvider: ruleProvider,
+      noResolve: splits.contains("no-resolve"),
+      subRule: subRule,
+      ruleTarget: ruleTarget,
+    );
+  }
+}
+
+extension ParsedRuleExt on ParsedRule {
+  String get value {
+    return [
+      ruleAction.value,
+      ruleAction == RuleAction.RULE_SET ? ruleProvider : content,
+      ruleAction == RuleAction.SUB_RULE ? subRule : ruleTarget,
+      if (ruleAction.hasParams) ...[
+        if (src) "src",
+        if (noResolve) "no-resolve",
+      ]
+    ].join(",");
+  }
+}
+
+@freezed
+class Rule with _$Rule {
+  const factory Rule({
+    required String id,
+    required String value,
+  }) = _Rule;
+
+  factory Rule.value(String value) {
+    return Rule(
+      value: value,
+      id: utils.uuidV4,
+    );
+  }
+
+  factory Rule.fromJson(Map<String, Object?> json) => _$RuleFromJson(json);
+}
+
+@freezed
+class SubRule with _$SubRule {
+  const factory SubRule({
+    required String name,
+  }) = _SubRule;
+
+  factory SubRule.fromJson(Map<String, Object?> json) =>
+      _$SubRuleFromJson(json);
+}
+
+_genRule(List<dynamic>? rules) {
+  if (rules == null) {
+    return [];
+  }
+  return rules
+      .map(
+        (item) => Rule.value(item),
+      )
+      .toList();
+}
+
+List<RuleProvider> _genRuleProviders(Map<String, dynamic> json) {
+  return json.entries.map((entry) => RuleProvider(name: entry.key)).toList();
+}
+
+List<SubRule> _genSubRules(Map<String, dynamic> json) {
+  return json.entries
+      .map(
+        (entry) => SubRule(
+          name: entry.key,
+        ),
+      )
+      .toList();
+}
+
+@freezed
 class ClashConfigSnippet with _$ClashConfigSnippet {
   const factory ClashConfigSnippet({
     @Default([]) @JsonKey(name: "proxy-groups") List<ProxyGroup> proxyGroups,
-    @Default([]) List<String> rule,
+    @JsonKey(fromJson: _genRule, name: "rules") @Default([]) List<Rule> rule,
+    @JsonKey(name: "rule-providers", fromJson: _genRuleProviders)
+    @Default([])
+    List<RuleProvider> ruleProvider,
+    @JsonKey(name: "sub-rules", fromJson: _genSubRules)
+    @Default([])
+    List<SubRule> subRules,
   }) = _ClashConfigSnippet;
 
   factory ClashConfigSnippet.fromJson(Map<String, Object?> json) =>
@@ -288,14 +458,18 @@ class ClashConfigSnippet with _$ClashConfigSnippet {
 class ClashConfig with _$ClashConfig {
   const factory ClashConfig({
     @Default(defaultMixedPort) @JsonKey(name: "mixed-port") int mixedPort,
+    @Default(0) @JsonKey(name: "socks-port") int socksPort,
+    @Default(0) @JsonKey(name: "port") int port,
+    @Default(0) @JsonKey(name: "redir-port") int redirPort,
+    @Default(0) @JsonKey(name: "tproxy-port") int tproxyPort,
     @Default(Mode.rule) Mode mode,
     @Default(false) @JsonKey(name: "allow-lan") bool allowLan,
-    @Default(LogLevel.info) @JsonKey(name: "log-level") LogLevel logLevel,
+    @Default(LogLevel.error) @JsonKey(name: "log-level") LogLevel logLevel,
     @Default(false) bool ipv6,
     @Default(FindProcessMode.off)
     @JsonKey(
       name: "find-process-mode",
-      unknownEnumValue: FindProcessMode.off,
+      unknownEnumValue: FindProcessMode.always,
     )
     FindProcessMode findProcessMode,
     @Default(defaultKeepAliveInterval)

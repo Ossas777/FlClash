@@ -6,7 +6,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:ffi/ffi.dart';
-import 'package:fl_clash/common/constant.dart';
+import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/plugins/service.dart';
@@ -63,26 +63,6 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
   }
 
   @override
-  Future<bool> nextHandleResult(result, completer) async {
-    switch (result.method) {
-      case ActionMethod.setFdMap:
-      case ActionMethod.setProcessMap:
-      case ActionMethod.stopTun:
-      case ActionMethod.updateDns:
-        completer?.complete(result.data as bool);
-        return true;
-      case ActionMethod.getRunTime:
-      case ActionMethod.startTun:
-      case ActionMethod.getAndroidVpnOptions:
-      case ActionMethod.getCurrentProfileName:
-        completer?.complete(result.data as String);
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  @override
   destroy() async {
     await service?.destroy();
     return true;
@@ -106,41 +86,12 @@ class ClashLib extends ClashHandlerInterface with AndroidClashInterface {
     sendPort?.send(message);
   }
 
-  @override
-  Future<bool> setFdMap(int fd) {
-    return invoke<bool>(
-      method: ActionMethod.setFdMap,
-      data: json.encode(fd),
-    );
-  }
-
-  @override
-  Future<bool> setProcessMap(item) {
-    return invoke<bool>(
-      method: ActionMethod.setProcessMap,
-      data: item,
-    );
-  }
-
-  @override
-  Future<DateTime?> startTun(int fd) async {
-    final res = await invoke<String>(
-      method: ActionMethod.startTun,
-      data: json.encode(fd),
-    );
-
-    if (res.isEmpty) {
-      return null;
-    }
-    return DateTime.fromMillisecondsSinceEpoch(int.parse(res));
-  }
-
-  @override
-  Future<bool> stopTun() {
-    return invoke<bool>(
-      method: ActionMethod.stopTun,
-    );
-  }
+  // @override
+  // Future<bool> stopTun() {
+  //   return invoke<bool>(
+  //     method: ActionMethod.stopTun,
+  //   );
+  // }
 
   @override
   Future<AndroidVpnOptions?> getAndroidVpnOptions() async {
@@ -224,35 +175,10 @@ class ClashLibHandler {
     );
   }
 
-  attachInvokePort(int invokePort) {
-    clashFFI.attachInvokePort(
-      invokePort,
-    );
-  }
-
-  DateTime? startTun(int fd) {
-    final runTimeRaw = clashFFI.startTUN(fd);
-    final runTimeString = runTimeRaw.cast<Utf8>().toDartString();
-    clashFFI.freeCString(runTimeRaw);
-    if (runTimeString.isEmpty) return null;
-    return DateTime.fromMillisecondsSinceEpoch(int.parse(runTimeString));
-  }
-
-  stopTun() {
-    clashFFI.stopTun();
-  }
-
   updateDns(String dns) {
     final dnsChar = dns.toNativeUtf8().cast<Char>();
     clashFFI.updateDns(dnsChar);
     malloc.free(dnsChar);
-  }
-
-  setProcessMap(ProcessMapItem processMapItem) {
-    final processMapItemChar =
-    json.encode(processMapItem).toNativeUtf8().cast<Char>();
-    clashFFI.setProcessMap(processMapItemChar);
-    malloc.free(processMapItemChar);
   }
 
   setState(CoreState state) {
@@ -305,17 +231,34 @@ class ClashLibHandler {
     return true;
   }
 
-  setFdMap(String id) {
-    final idChar = id.toNativeUtf8().cast<Char>();
-    clashFFI.setFdMap(idChar);
-    malloc.free(idChar);
+  DateTime? getRunTime() {
+    final runTimeRaw = clashFFI.getRunTime();
+    final runTimeString = runTimeRaw.cast<Utf8>().toDartString();
+    if (runTimeString.isEmpty) {
+      return null;
+    }
+    return DateTime.fromMillisecondsSinceEpoch(int.parse(runTimeString));
+  }
+
+  Future<Map<String, dynamic>> getConfig(String id) async {
+    final path = await appPath.getProfilePath(id);
+    final pathChar = path.toNativeUtf8().cast<Char>();
+    final configRaw = clashFFI.getConfig(pathChar);
+    final configString = configRaw.cast<Utf8>().toDartString();
+    if (configString.isEmpty) {
+      return {};
+    }
+    final config = json.decode(configString);
+    malloc.free(pathChar);
+    clashFFI.freeCString(configRaw);
+    return config;
   }
 
   Future<String> quickStart(
-      String homeDir,
-      UpdateConfigParams updateConfigParams,
-      CoreState state,
-      ) {
+    InitParams initParams,
+    SetupParams setupParams,
+    CoreState state,
+  ) {
     final completer = Completer<String>();
     final receiver = ReceivePort();
     receiver.listen((message) {
@@ -324,31 +267,27 @@ class ClashLibHandler {
         receiver.close();
       }
     });
-    final params = json.encode(updateConfigParams);
+    final params = json.encode(setupParams);
+    final initValue = json.encode(initParams);
     final stateParams = json.encode(state);
-    final homeChar = homeDir.toNativeUtf8().cast<Char>();
+    final initParamsChar = initValue.toNativeUtf8().cast<Char>();
     final paramsChar = params.toNativeUtf8().cast<Char>();
     final stateParamsChar = stateParams.toNativeUtf8().cast<Char>();
     clashFFI.quickStart(
-      homeChar,
+      initParamsChar,
       paramsChar,
       stateParamsChar,
       receiver.sendPort.nativePort,
     );
-    malloc.free(homeChar);
+    malloc.free(initParamsChar);
     malloc.free(paramsChar);
     malloc.free(stateParamsChar);
     return completer.future;
-  }
-
-  DateTime? getRunTime() {
-    final runTimeRaw = clashFFI.getRunTime();
-    final runTimeString = runTimeRaw.cast<Utf8>().toDartString();
-    clashFFI.freeCString(runTimeRaw);
-    if (runTimeString.isEmpty) return null;
-    return DateTime.fromMillisecondsSinceEpoch(int.parse(runTimeString));
   }
 }
 
 ClashLib? get clashLib =>
     Platform.isAndroid && !globalState.isService ? ClashLib() : null;
+
+ClashLibHandler? get clashLibHandler =>
+    Platform.isAndroid && globalState.isService ? ClashLibHandler() : null;

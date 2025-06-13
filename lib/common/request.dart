@@ -43,6 +43,16 @@ class Request {
     return response;
   }
 
+  Future<Response> getTextResponseForUrl(String url) async {
+    final response = await _clashDio.get(
+      url,
+      options: Options(
+        responseType: ResponseType.plain,
+      ),
+    );
+    return response;
+  }
+
   Future<MemoryImage?> getImage(String url) async {
     if (url.isEmpty) return null;
     final response = await _dio.get<Uint8List>(
@@ -68,7 +78,7 @@ class Request {
     final remoteVersion = data['tag_name'];
     final version = globalState.packageInfo.version;
     final hasUpdate =
-        other.compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
+        utils.compareVersions(remoteVersion.replaceAll('v', ''), version) > 0;
     if (!hasUpdate) return null;
     return data;
   }
@@ -83,13 +93,19 @@ class Request {
   Future<IpInfo?> checkIp({CancelToken? cancelToken}) async {
     for (final source in _ipInfoSources.entries) {
       try {
-        final response = await _dio.get<Map<String, dynamic>>(
-          source.key,
-          cancelToken: cancelToken,
-          options: Options(
-            responseType: ResponseType.json,
-          ),
-        );
+        final response = await Dio()
+            .get<Map<String, dynamic>>(
+              source.key,
+              cancelToken: cancelToken,
+              options: Options(
+                responseType: ResponseType.json,
+              ),
+            )
+            .timeout(
+              Duration(
+                seconds: 30,
+              ),
+            );
         if (response.statusCode != 200 || response.data == null) {
           continue;
         }
@@ -124,7 +140,7 @@ class Request {
       if (response.statusCode != HttpStatus.ok) {
         return false;
       }
-      return (response.data as String) == helperTag;
+      return (response.data as String) == globalState.coreSHA256;
     } catch (_) {
       return false;
     }

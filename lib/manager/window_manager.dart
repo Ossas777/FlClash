@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
@@ -37,7 +38,7 @@ class _WindowContainerState extends ConsumerState<WindowManager>
       (prev, next) {
         if (prev != next) {
           debouncer.call(
-            DebounceTag.autoLaunch,
+            FunctionTag.autoLaunch,
             () {
               autoLaunch?.updateStatus(next);
             },
@@ -58,13 +59,8 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   @override
   void onWindowFocus() {
     super.onWindowFocus();
+    commonPrint.log("focus");
     render?.resume();
-  }
-
-  @override
-  void onWindowBlur() {
-    super.onWindowBlur();
-    render?.pause();
   }
 
   @override
@@ -100,13 +96,16 @@ class _WindowContainerState extends ConsumerState<WindowManager>
   @override
   void onWindowMinimize() async {
     globalState.appController.savePreferencesDebounce();
+    commonPrint.log("minimize");
+    render?.pause();
     super.onWindowMinimize();
   }
 
   @override
-  Future<void> onTaskbarCreated() async {
-    globalState.appController.updateTray(true);
-    super.onTaskbarCreated();
+  void onWindowRestore() {
+    commonPrint.log("restore");
+    render?.resume();
+    super.onWindowRestore();
   }
 
   @override
@@ -184,19 +183,23 @@ class _WindowHeaderState extends State<WindowHeader> {
     super.dispose();
   }
 
-  _updateMaximized() {
-    isMaximizedNotifier.value = !isMaximizedNotifier.value;
-    switch (isMaximizedNotifier.value) {
+  _updateMaximized() async {
+    final isMaximized = await windowManager.isMaximized();
+    switch (isMaximized) {
       case true:
-        windowManager.maximize();
+        await windowManager.unmaximize();
+        break;
       case false:
-        windowManager.unmaximize();
+        await windowManager.maximize();
+        break;
     }
+    isMaximizedNotifier.value = await windowManager.isMaximized();
   }
 
-  _updatePin() {
-    isPinNotifier.value = !isPinNotifier.value;
-    windowManager.setAlwaysOnTop(isPinNotifier.value);
+  _updatePin() async {
+    final isAlwaysOnTop = await windowManager.isAlwaysOnTop();
+    await windowManager.setAlwaysOnTop(!isAlwaysOnTop);
+    isPinNotifier.value = await windowManager.isAlwaysOnTop();
   }
 
   _buildActions() {
@@ -271,7 +274,7 @@ class _WindowHeaderState extends State<WindowHeader> {
                 _updateMaximized();
               },
               child: Container(
-                color: context.colorScheme.secondary.toSoft,
+                color: context.colorScheme.secondary.opacity15,
                 alignment: Alignment.centerLeft,
                 height: kHeaderHeight,
               ),

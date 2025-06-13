@@ -140,16 +140,6 @@ class AppLocalizations {
     return Intl.message('Core info', name: 'coreInfo', desc: '', args: []);
   }
 
-  /// `Unable to obtain core info`
-  String get nullCoreInfoDesc {
-    return Intl.message(
-      'Unable to obtain core info',
-      name: 'nullCoreInfoDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Network speed`
   String get networkSpeed {
     return Intl.message(
@@ -213,11 +203,6 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
-  }
-
-  /// `No logs`
-  String get nullLogsDesc {
-    return Intl.message('No logs', name: 'nullLogsDesc', desc: '', args: []);
   }
 
   /// `Settings`
@@ -945,16 +930,6 @@ class AppLocalizations {
     );
   }
 
-  /// `When enabled, the home tab will add a toggle animation`
-  String get tabAnimationDesc {
-    return Intl.message(
-      'When enabled, the home tab will add a toggle animation',
-      name: 'tabAnimationDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `A multi-platform proxy client based on ClashMeta, simple and easy to use, open-source and ad-free.`
   String get desc {
     return Intl.message(
@@ -1168,26 +1143,6 @@ class AppLocalizations {
   /// `Password`
   String get password {
     return Intl.message('Password', name: 'password', desc: '', args: []);
-  }
-
-  /// `Password cannot be empty`
-  String get passwordTip {
-    return Intl.message(
-      'Password cannot be empty',
-      name: 'passwordTip',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Account cannot be empty`
-  String get accountTip {
-    return Intl.message(
-      'Account cannot be empty',
-      name: 'accountTip',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Check for updates`
@@ -1435,16 +1390,6 @@ class AppLocalizations {
     );
   }
 
-  /// `There is a risk of flashback after opening`
-  String get findProcessModeDesc {
-    return Intl.message(
-      'There is a risk of flashback after opening',
-      name: 'findProcessModeDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Init`
   String get init {
     return Intl.message('Init', name: 'init', desc: '', args: []);
@@ -1480,26 +1425,6 @@ class AppLocalizations {
     return Intl.message(
       'View current connections data',
       name: 'connectionsDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No requests`
-  String get nullRequestsDesc {
-    return Intl.message(
-      'No requests',
-      name: 'nullRequestsDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `No connections`
-  String get nullConnectionsDesc {
-    return Intl.message(
-      'No connections',
-      name: 'nullConnectionsDesc',
       desc: '',
       args: [],
     );
@@ -1720,16 +1645,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Sure you want to delete the current profile?`
-  String get deleteProfileTip {
-    return Intl.message(
-      'Sure you want to delete the current profile?',
-      name: 'deleteProfileTip',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Pure black mode`
   String get pureBlackMode {
     return Intl.message(
@@ -1930,16 +1845,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Overwrite general settings`
-  String get generalDesc {
-    return Intl.message(
-      'Overwrite general settings',
-      name: 'generalDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Update DNS related settings`
   String get dnsDesc {
     return Intl.message(
@@ -1958,16 +1863,6 @@ class AppLocalizations {
   /// `Value`
   String get value {
     return Intl.message('Value', name: 'value', desc: '', args: []);
-  }
-
-  /// `Cannot be empty`
-  String get notEmpty {
-    return Intl.message(
-      'Cannot be empty',
-      name: 'notEmpty',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Add Hosts`
@@ -2645,11 +2540,6 @@ class AppLocalizations {
     );
   }
 
-  /// `No proxies`
-  String get nullProxies {
-    return Intl.message('No proxies', name: 'nullProxies', desc: '', args: []);
-  }
-
   /// `Copy success`
   String get copySuccess {
     return Intl.message(
@@ -2693,6 +2583,561 @@ class AppLocalizations {
   /// `Listen`
   String get listen {
     return Intl.message('Listen', name: 'listen', desc: '', args: []);
+  }
+
+  /// `undo`
+  String get undo {
+    return Intl.message('undo', name: 'undo', desc: '', args: []);
+  }
+
+  /// `redo`
+  String get redo {
+    return Intl.message('redo', name: 'redo', desc: '', args: []);
+  }
+
+  /// `none`
+  String get none {
+    return Intl.message('none', name: 'none', desc: '', args: []);
+  }
+
+  /// `Basic configuration`
+  String get basicConfig {
+    return Intl.message(
+      'Basic configuration',
+      name: 'basicConfig',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Modify the basic configuration globally`
+  String get basicConfigDesc {
+    return Intl.message(
+      'Modify the basic configuration globally',
+      name: 'basicConfigDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} items have been selected`
+  String selectedCountTitle(Object count) {
+    return Intl.message(
+      '$count items have been selected',
+      name: 'selectedCountTitle',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Add rule`
+  String get addRule {
+    return Intl.message('Add rule', name: 'addRule', desc: '', args: []);
+  }
+
+  /// `Rule name`
+  String get ruleName {
+    return Intl.message('Rule name', name: 'ruleName', desc: '', args: []);
+  }
+
+  /// `Content`
+  String get content {
+    return Intl.message('Content', name: 'content', desc: '', args: []);
+  }
+
+  /// `Sub rule`
+  String get subRule {
+    return Intl.message('Sub rule', name: 'subRule', desc: '', args: []);
+  }
+
+  /// `Rule target`
+  String get ruleTarget {
+    return Intl.message('Rule target', name: 'ruleTarget', desc: '', args: []);
+  }
+
+  /// `Source IP`
+  String get sourceIp {
+    return Intl.message('Source IP', name: 'sourceIp', desc: '', args: []);
+  }
+
+  /// `No resolve IP`
+  String get noResolve {
+    return Intl.message('No resolve IP', name: 'noResolve', desc: '', args: []);
+  }
+
+  /// `Get original rules`
+  String get getOriginRules {
+    return Intl.message(
+      'Get original rules',
+      name: 'getOriginRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override the original rule`
+  String get overrideOriginRules {
+    return Intl.message(
+      'Override the original rule',
+      name: 'overrideOriginRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Attach on the original rules`
+  String get addedOriginRules {
+    return Intl.message(
+      'Attach on the original rules',
+      name: 'addedOriginRules',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable override`
+  String get enableOverride {
+    return Intl.message(
+      'Enable override',
+      name: 'enableOverride',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do you want to save the changes?`
+  String get saveChanges {
+    return Intl.message(
+      'Do you want to save the changes?',
+      name: 'saveChanges',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Modify general settings`
+  String get generalDesc {
+    return Intl.message(
+      'Modify general settings',
+      name: 'generalDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `There is a certain performance loss after opening`
+  String get findProcessModeDesc {
+    return Intl.message(
+      'There is a certain performance loss after opening',
+      name: 'findProcessModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Effective only in mobile view`
+  String get tabAnimationDesc {
+    return Intl.message(
+      'Effective only in mobile view',
+      name: 'tabAnimationDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to save?`
+  String get saveTip {
+    return Intl.message(
+      'Are you sure you want to save?',
+      name: 'saveTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Color schemes`
+  String get colorSchemes {
+    return Intl.message(
+      'Color schemes',
+      name: 'colorSchemes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Palette`
+  String get palette {
+    return Intl.message('Palette', name: 'palette', desc: '', args: []);
+  }
+
+  /// `TonalSpot`
+  String get tonalSpotScheme {
+    return Intl.message(
+      'TonalSpot',
+      name: 'tonalSpotScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fidelity`
+  String get fidelityScheme {
+    return Intl.message('Fidelity', name: 'fidelityScheme', desc: '', args: []);
+  }
+
+  /// `Monochrome`
+  String get monochromeScheme {
+    return Intl.message(
+      'Monochrome',
+      name: 'monochromeScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Neutral`
+  String get neutralScheme {
+    return Intl.message('Neutral', name: 'neutralScheme', desc: '', args: []);
+  }
+
+  /// `Vibrant`
+  String get vibrantScheme {
+    return Intl.message('Vibrant', name: 'vibrantScheme', desc: '', args: []);
+  }
+
+  /// `Expressive`
+  String get expressiveScheme {
+    return Intl.message(
+      'Expressive',
+      name: 'expressiveScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Content`
+  String get contentScheme {
+    return Intl.message('Content', name: 'contentScheme', desc: '', args: []);
+  }
+
+  /// `Rainbow`
+  String get rainbowScheme {
+    return Intl.message('Rainbow', name: 'rainbowScheme', desc: '', args: []);
+  }
+
+  /// `FruitSalad`
+  String get fruitSaladScheme {
+    return Intl.message(
+      'FruitSalad',
+      name: 'fruitSaladScheme',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Developer mode`
+  String get developerMode {
+    return Intl.message(
+      'Developer mode',
+      name: 'developerMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Developer mode is enabled.`
+  String get developerModeEnableTip {
+    return Intl.message(
+      'Developer mode is enabled.',
+      name: 'developerModeEnableTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Message test`
+  String get messageTest {
+    return Intl.message(
+      'Message test',
+      name: 'messageTest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is a message.`
+  String get messageTestTip {
+    return Intl.message(
+      'This is a message.',
+      name: 'messageTestTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Crash test`
+  String get crashTest {
+    return Intl.message('Crash test', name: 'crashTest', desc: '', args: []);
+  }
+
+  /// `Clear Data`
+  String get clearData {
+    return Intl.message('Clear Data', name: 'clearData', desc: '', args: []);
+  }
+
+  /// `Text Scaling`
+  String get textScale {
+    return Intl.message('Text Scaling', name: 'textScale', desc: '', args: []);
+  }
+
+  /// `Internet`
+  String get internet {
+    return Intl.message('Internet', name: 'internet', desc: '', args: []);
+  }
+
+  /// `System APP`
+  String get systemApp {
+    return Intl.message('System APP', name: 'systemApp', desc: '', args: []);
+  }
+
+  /// `No network APP`
+  String get noNetworkApp {
+    return Intl.message(
+      'No network APP',
+      name: 'noNetworkApp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact me`
+  String get contactMe {
+    return Intl.message('Contact me', name: 'contactMe', desc: '', args: []);
+  }
+
+  /// `Recovery strategy`
+  String get recoveryStrategy {
+    return Intl.message(
+      'Recovery strategy',
+      name: 'recoveryStrategy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Override`
+  String get recoveryStrategy_override {
+    return Intl.message(
+      'Override',
+      name: 'recoveryStrategy_override',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compatible`
+  String get recoveryStrategy_compatible {
+    return Intl.message(
+      'Compatible',
+      name: 'recoveryStrategy_compatible',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logs test`
+  String get logsTest {
+    return Intl.message('Logs test', name: 'logsTest', desc: '', args: []);
+  }
+
+  /// `{label} cannot be empty`
+  String emptyTip(Object label) {
+    return Intl.message(
+      '$label cannot be empty',
+      name: 'emptyTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `{label} must be a url`
+  String urlTip(Object label) {
+    return Intl.message(
+      '$label must be a url',
+      name: 'urlTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `{label} must be a number`
+  String numberTip(Object label) {
+    return Intl.message(
+      '$label must be a number',
+      name: 'numberTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Interval`
+  String get interval {
+    return Intl.message('Interval', name: 'interval', desc: '', args: []);
+  }
+
+  /// `Current {label} already exists`
+  String existsTip(Object label) {
+    return Intl.message(
+      'Current $label already exists',
+      name: 'existsTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Are you sure you want to delete the current {label}?`
+  String deleteTip(Object label) {
+    return Intl.message(
+      'Are you sure you want to delete the current $label?',
+      name: 'deleteTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Are you sure you want to delete the selected {label}?`
+  String deleteMultipTip(Object label) {
+    return Intl.message(
+      'Are you sure you want to delete the selected $label?',
+      name: 'deleteMultipTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `No {label} at the moment`
+  String nullTip(Object label) {
+    return Intl.message(
+      'No $label at the moment',
+      name: 'nullTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Script`
+  String get script {
+    return Intl.message('Script', name: 'script', desc: '', args: []);
+  }
+
+  /// `Color`
+  String get color {
+    return Intl.message('Color', name: 'color', desc: '', args: []);
+  }
+
+  /// `Rename`
+  String get rename {
+    return Intl.message('Rename', name: 'rename', desc: '', args: []);
+  }
+
+  /// `Unnamed`
+  String get unnamed {
+    return Intl.message('Unnamed', name: 'unnamed', desc: '', args: []);
+  }
+
+  /// `Please enter a script name`
+  String get pleaseEnterScriptName {
+    return Intl.message(
+      'Please enter a script name',
+      name: 'pleaseEnterScriptName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Does not take effect in script mode`
+  String get overrideInvalidTip {
+    return Intl.message(
+      'Does not take effect in script mode',
+      name: 'overrideInvalidTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Mixed Port`
+  String get mixedPort {
+    return Intl.message('Mixed Port', name: 'mixedPort', desc: '', args: []);
+  }
+
+  /// `Socks Port`
+  String get socksPort {
+    return Intl.message('Socks Port', name: 'socksPort', desc: '', args: []);
+  }
+
+  /// `Redir Port`
+  String get redirPort {
+    return Intl.message('Redir Port', name: 'redirPort', desc: '', args: []);
+  }
+
+  /// `Tproxy Port`
+  String get tproxyPort {
+    return Intl.message('Tproxy Port', name: 'tproxyPort', desc: '', args: []);
+  }
+
+  /// `{label} must be between 1024 and 49151`
+  String portTip(Object label) {
+    return Intl.message(
+      '$label must be between 1024 and 49151',
+      name: 'portTip',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Please enter a different port`
+  String get portConflictTip {
+    return Intl.message(
+      'Please enter a different port',
+      name: 'portConflictTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import`
+  String get import {
+    return Intl.message('Import', name: 'import', desc: '', args: []);
+  }
+
+  /// `Import from file`
+  String get importFile {
+    return Intl.message(
+      'Import from file',
+      name: 'importFile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import from URL`
+  String get importUrl {
+    return Intl.message(
+      'Import from URL',
+      name: 'importUrl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto set system DNS`
+  String get autoSetSystemDns {
+    return Intl.message(
+      'Auto set system DNS',
+      name: 'autoSetSystemDns',
+      desc: '',
+      args: [],
+    );
   }
 }
 

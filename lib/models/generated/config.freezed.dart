@@ -37,6 +37,8 @@ mixin _$AppSettingProps {
   bool get disclaimerAccepted => throw _privateConstructorUsedError;
   bool get minimizeOnExit => throw _privateConstructorUsedError;
   bool get hidden => throw _privateConstructorUsedError;
+  bool get developerMode => throw _privateConstructorUsedError;
+  RecoveryStrategy get recoveryStrategy => throw _privateConstructorUsedError;
 
   /// Serializes this AppSettingProps to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -70,7 +72,9 @@ abstract class $AppSettingPropsCopyWith<$Res> {
       bool showLabel,
       bool disclaimerAccepted,
       bool minimizeOnExit,
-      bool hidden});
+      bool hidden,
+      bool developerMode,
+      RecoveryStrategy recoveryStrategy});
 }
 
 /// @nodoc
@@ -103,6 +107,8 @@ class _$AppSettingPropsCopyWithImpl<$Res, $Val extends AppSettingProps>
     Object? disclaimerAccepted = null,
     Object? minimizeOnExit = null,
     Object? hidden = null,
+    Object? developerMode = null,
+    Object? recoveryStrategy = null,
   }) {
     return _then(_value.copyWith(
       locale: freezed == locale
@@ -165,6 +171,14 @@ class _$AppSettingPropsCopyWithImpl<$Res, $Val extends AppSettingProps>
           ? _value.hidden
           : hidden // ignore: cast_nullable_to_non_nullable
               as bool,
+      developerMode: null == developerMode
+          ? _value.developerMode
+          : developerMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      recoveryStrategy: null == recoveryStrategy
+          ? _value.recoveryStrategy
+          : recoveryStrategy // ignore: cast_nullable_to_non_nullable
+              as RecoveryStrategy,
     ) as $Val);
   }
 }
@@ -193,7 +207,9 @@ abstract class _$$AppSettingPropsImplCopyWith<$Res>
       bool showLabel,
       bool disclaimerAccepted,
       bool minimizeOnExit,
-      bool hidden});
+      bool hidden,
+      bool developerMode,
+      RecoveryStrategy recoveryStrategy});
 }
 
 /// @nodoc
@@ -224,6 +240,8 @@ class __$$AppSettingPropsImplCopyWithImpl<$Res>
     Object? disclaimerAccepted = null,
     Object? minimizeOnExit = null,
     Object? hidden = null,
+    Object? developerMode = null,
+    Object? recoveryStrategy = null,
   }) {
     return _then(_$AppSettingPropsImpl(
       locale: freezed == locale
@@ -286,6 +304,14 @@ class __$$AppSettingPropsImplCopyWithImpl<$Res>
           ? _value.hidden
           : hidden // ignore: cast_nullable_to_non_nullable
               as bool,
+      developerMode: null == developerMode
+          ? _value.developerMode
+          : developerMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      recoveryStrategy: null == recoveryStrategy
+          ? _value.recoveryStrategy
+          : recoveryStrategy // ignore: cast_nullable_to_non_nullable
+              as RecoveryStrategy,
     ));
   }
 }
@@ -309,7 +335,9 @@ class _$AppSettingPropsImpl implements _AppSettingProps {
       this.showLabel = false,
       this.disclaimerAccepted = false,
       this.minimizeOnExit = true,
-      this.hidden = false})
+      this.hidden = false,
+      this.developerMode = false,
+      this.recoveryStrategy = RecoveryStrategy.compatible})
       : _dashboardWidgets = dashboardWidgets;
 
   factory _$AppSettingPropsImpl.fromJson(Map<String, dynamic> json) =>
@@ -366,10 +394,16 @@ class _$AppSettingPropsImpl implements _AppSettingProps {
   @override
   @JsonKey()
   final bool hidden;
+  @override
+  @JsonKey()
+  final bool developerMode;
+  @override
+  @JsonKey()
+  final RecoveryStrategy recoveryStrategy;
 
   @override
   String toString() {
-    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, onlyStatisticsProxy: $onlyStatisticsProxy, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, testUrl: $testUrl, isAnimateToPage: $isAnimateToPage, autoCheckUpdate: $autoCheckUpdate, showLabel: $showLabel, disclaimerAccepted: $disclaimerAccepted, minimizeOnExit: $minimizeOnExit, hidden: $hidden)';
+    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, onlyStatisticsProxy: $onlyStatisticsProxy, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, testUrl: $testUrl, isAnimateToPage: $isAnimateToPage, autoCheckUpdate: $autoCheckUpdate, showLabel: $showLabel, disclaimerAccepted: $disclaimerAccepted, minimizeOnExit: $minimizeOnExit, hidden: $hidden, developerMode: $developerMode, recoveryStrategy: $recoveryStrategy)';
   }
 
   @override
@@ -402,7 +436,11 @@ class _$AppSettingPropsImpl implements _AppSettingProps {
                 other.disclaimerAccepted == disclaimerAccepted) &&
             (identical(other.minimizeOnExit, minimizeOnExit) ||
                 other.minimizeOnExit == minimizeOnExit) &&
-            (identical(other.hidden, hidden) || other.hidden == hidden));
+            (identical(other.hidden, hidden) || other.hidden == hidden) &&
+            (identical(other.developerMode, developerMode) ||
+                other.developerMode == developerMode) &&
+            (identical(other.recoveryStrategy, recoveryStrategy) ||
+                other.recoveryStrategy == recoveryStrategy));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -423,7 +461,9 @@ class _$AppSettingPropsImpl implements _AppSettingProps {
       showLabel,
       disclaimerAccepted,
       minimizeOnExit,
-      hidden);
+      hidden,
+      developerMode,
+      recoveryStrategy);
 
   /// Create a copy of AppSettingProps
   /// with the given fields replaced by the non-null parameter values.
@@ -459,7 +499,9 @@ abstract class _AppSettingProps implements AppSettingProps {
       final bool showLabel,
       final bool disclaimerAccepted,
       final bool minimizeOnExit,
-      final bool hidden}) = _$AppSettingPropsImpl;
+      final bool hidden,
+      final bool developerMode,
+      final RecoveryStrategy recoveryStrategy}) = _$AppSettingPropsImpl;
 
   factory _AppSettingProps.fromJson(Map<String, dynamic> json) =
       _$AppSettingPropsImpl.fromJson;
@@ -495,6 +537,10 @@ abstract class _AppSettingProps implements AppSettingProps {
   bool get minimizeOnExit;
   @override
   bool get hidden;
+  @override
+  bool get developerMode;
+  @override
+  RecoveryStrategy get recoveryStrategy;
 
   /// Create a copy of AppSettingProps
   /// with the given fields replaced by the non-null parameter values.
@@ -516,6 +562,7 @@ mixin _$AccessControl {
   List<String> get rejectList => throw _privateConstructorUsedError;
   AccessSortType get sort => throw _privateConstructorUsedError;
   bool get isFilterSystemApp => throw _privateConstructorUsedError;
+  bool get isFilterNonInternetApp => throw _privateConstructorUsedError;
 
   /// Serializes this AccessControl to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -539,7 +586,8 @@ abstract class $AccessControlCopyWith<$Res> {
       List<String> acceptList,
       List<String> rejectList,
       AccessSortType sort,
-      bool isFilterSystemApp});
+      bool isFilterSystemApp,
+      bool isFilterNonInternetApp});
 }
 
 /// @nodoc
@@ -563,6 +611,7 @@ class _$AccessControlCopyWithImpl<$Res, $Val extends AccessControl>
     Object? rejectList = null,
     Object? sort = null,
     Object? isFilterSystemApp = null,
+    Object? isFilterNonInternetApp = null,
   }) {
     return _then(_value.copyWith(
       enable: null == enable
@@ -589,6 +638,10 @@ class _$AccessControlCopyWithImpl<$Res, $Val extends AccessControl>
           ? _value.isFilterSystemApp
           : isFilterSystemApp // ignore: cast_nullable_to_non_nullable
               as bool,
+      isFilterNonInternetApp: null == isFilterNonInternetApp
+          ? _value.isFilterNonInternetApp
+          : isFilterNonInternetApp // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -607,7 +660,8 @@ abstract class _$$AccessControlImplCopyWith<$Res>
       List<String> acceptList,
       List<String> rejectList,
       AccessSortType sort,
-      bool isFilterSystemApp});
+      bool isFilterSystemApp,
+      bool isFilterNonInternetApp});
 }
 
 /// @nodoc
@@ -629,6 +683,7 @@ class __$$AccessControlImplCopyWithImpl<$Res>
     Object? rejectList = null,
     Object? sort = null,
     Object? isFilterSystemApp = null,
+    Object? isFilterNonInternetApp = null,
   }) {
     return _then(_$AccessControlImpl(
       enable: null == enable
@@ -655,6 +710,10 @@ class __$$AccessControlImplCopyWithImpl<$Res>
           ? _value.isFilterSystemApp
           : isFilterSystemApp // ignore: cast_nullable_to_non_nullable
               as bool,
+      isFilterNonInternetApp: null == isFilterNonInternetApp
+          ? _value.isFilterNonInternetApp
+          : isFilterNonInternetApp // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -668,7 +727,8 @@ class _$AccessControlImpl implements _AccessControl {
       final List<String> acceptList = const [],
       final List<String> rejectList = const [],
       this.sort = AccessSortType.none,
-      this.isFilterSystemApp = true})
+      this.isFilterSystemApp = true,
+      this.isFilterNonInternetApp = true})
       : _acceptList = acceptList,
         _rejectList = rejectList;
 
@@ -705,10 +765,13 @@ class _$AccessControlImpl implements _AccessControl {
   @override
   @JsonKey()
   final bool isFilterSystemApp;
+  @override
+  @JsonKey()
+  final bool isFilterNonInternetApp;
 
   @override
   String toString() {
-    return 'AccessControl(enable: $enable, mode: $mode, acceptList: $acceptList, rejectList: $rejectList, sort: $sort, isFilterSystemApp: $isFilterSystemApp)';
+    return 'AccessControl(enable: $enable, mode: $mode, acceptList: $acceptList, rejectList: $rejectList, sort: $sort, isFilterSystemApp: $isFilterSystemApp, isFilterNonInternetApp: $isFilterNonInternetApp)';
   }
 
   @override
@@ -724,7 +787,9 @@ class _$AccessControlImpl implements _AccessControl {
                 .equals(other._rejectList, _rejectList) &&
             (identical(other.sort, sort) || other.sort == sort) &&
             (identical(other.isFilterSystemApp, isFilterSystemApp) ||
-                other.isFilterSystemApp == isFilterSystemApp));
+                other.isFilterSystemApp == isFilterSystemApp) &&
+            (identical(other.isFilterNonInternetApp, isFilterNonInternetApp) ||
+                other.isFilterNonInternetApp == isFilterNonInternetApp));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -736,7 +801,8 @@ class _$AccessControlImpl implements _AccessControl {
       const DeepCollectionEquality().hash(_acceptList),
       const DeepCollectionEquality().hash(_rejectList),
       sort,
-      isFilterSystemApp);
+      isFilterSystemApp,
+      isFilterNonInternetApp);
 
   /// Create a copy of AccessControl
   /// with the given fields replaced by the non-null parameter values.
@@ -761,7 +827,8 @@ abstract class _AccessControl implements AccessControl {
       final List<String> acceptList,
       final List<String> rejectList,
       final AccessSortType sort,
-      final bool isFilterSystemApp}) = _$AccessControlImpl;
+      final bool isFilterSystemApp,
+      final bool isFilterNonInternetApp}) = _$AccessControlImpl;
 
   factory _AccessControl.fromJson(Map<String, dynamic> json) =
       _$AccessControlImpl.fromJson;
@@ -778,6 +845,8 @@ abstract class _AccessControl implements AccessControl {
   AccessSortType get sort;
   @override
   bool get isFilterSystemApp;
+  @override
+  bool get isFilterNonInternetApp;
 
   /// Create a copy of AccessControl
   /// with the given fields replaced by the non-null parameter values.
@@ -912,7 +981,7 @@ class __$$WindowPropsImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$WindowPropsImpl implements _WindowProps {
   const _$WindowPropsImpl(
-      {this.width = 900, this.height = 600, this.top, this.left});
+      {this.width = 750, this.height = 600, this.top, this.left});
 
   factory _$WindowPropsImpl.fromJson(Map<String, dynamic> json) =>
       _$$WindowPropsImplFromJson(json);
@@ -1256,6 +1325,7 @@ mixin _$NetworkProps {
   bool get systemProxy => throw _privateConstructorUsedError;
   List<String> get bypassDomain => throw _privateConstructorUsedError;
   RouteMode get routeMode => throw _privateConstructorUsedError;
+  bool get autoSetSystemDns => throw _privateConstructorUsedError;
 
   /// Serializes this NetworkProps to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1273,7 +1343,11 @@ abstract class $NetworkPropsCopyWith<$Res> {
           NetworkProps value, $Res Function(NetworkProps) then) =
       _$NetworkPropsCopyWithImpl<$Res, NetworkProps>;
   @useResult
-  $Res call({bool systemProxy, List<String> bypassDomain, RouteMode routeMode});
+  $Res call(
+      {bool systemProxy,
+      List<String> bypassDomain,
+      RouteMode routeMode,
+      bool autoSetSystemDns});
 }
 
 /// @nodoc
@@ -1294,6 +1368,7 @@ class _$NetworkPropsCopyWithImpl<$Res, $Val extends NetworkProps>
     Object? systemProxy = null,
     Object? bypassDomain = null,
     Object? routeMode = null,
+    Object? autoSetSystemDns = null,
   }) {
     return _then(_value.copyWith(
       systemProxy: null == systemProxy
@@ -1308,6 +1383,10 @@ class _$NetworkPropsCopyWithImpl<$Res, $Val extends NetworkProps>
           ? _value.routeMode
           : routeMode // ignore: cast_nullable_to_non_nullable
               as RouteMode,
+      autoSetSystemDns: null == autoSetSystemDns
+          ? _value.autoSetSystemDns
+          : autoSetSystemDns // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -1320,7 +1399,11 @@ abstract class _$$NetworkPropsImplCopyWith<$Res>
       __$$NetworkPropsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool systemProxy, List<String> bypassDomain, RouteMode routeMode});
+  $Res call(
+      {bool systemProxy,
+      List<String> bypassDomain,
+      RouteMode routeMode,
+      bool autoSetSystemDns});
 }
 
 /// @nodoc
@@ -1339,6 +1422,7 @@ class __$$NetworkPropsImplCopyWithImpl<$Res>
     Object? systemProxy = null,
     Object? bypassDomain = null,
     Object? routeMode = null,
+    Object? autoSetSystemDns = null,
   }) {
     return _then(_$NetworkPropsImpl(
       systemProxy: null == systemProxy
@@ -1353,6 +1437,10 @@ class __$$NetworkPropsImplCopyWithImpl<$Res>
           ? _value.routeMode
           : routeMode // ignore: cast_nullable_to_non_nullable
               as RouteMode,
+      autoSetSystemDns: null == autoSetSystemDns
+          ? _value.autoSetSystemDns
+          : autoSetSystemDns // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -1363,7 +1451,8 @@ class _$NetworkPropsImpl implements _NetworkProps {
   const _$NetworkPropsImpl(
       {this.systemProxy = true,
       final List<String> bypassDomain = defaultBypassDomain,
-      this.routeMode = RouteMode.bypassPrivate})
+      this.routeMode = RouteMode.config,
+      this.autoSetSystemDns = true})
       : _bypassDomain = bypassDomain;
 
   factory _$NetworkPropsImpl.fromJson(Map<String, dynamic> json) =>
@@ -1384,10 +1473,13 @@ class _$NetworkPropsImpl implements _NetworkProps {
   @override
   @JsonKey()
   final RouteMode routeMode;
+  @override
+  @JsonKey()
+  final bool autoSetSystemDns;
 
   @override
   String toString() {
-    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, routeMode: $routeMode)';
+    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, routeMode: $routeMode, autoSetSystemDns: $autoSetSystemDns)';
   }
 
   @override
@@ -1400,13 +1492,19 @@ class _$NetworkPropsImpl implements _NetworkProps {
             const DeepCollectionEquality()
                 .equals(other._bypassDomain, _bypassDomain) &&
             (identical(other.routeMode, routeMode) ||
-                other.routeMode == routeMode));
+                other.routeMode == routeMode) &&
+            (identical(other.autoSetSystemDns, autoSetSystemDns) ||
+                other.autoSetSystemDns == autoSetSystemDns));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, systemProxy,
-      const DeepCollectionEquality().hash(_bypassDomain), routeMode);
+  int get hashCode => Object.hash(
+      runtimeType,
+      systemProxy,
+      const DeepCollectionEquality().hash(_bypassDomain),
+      routeMode,
+      autoSetSystemDns);
 
   /// Create a copy of NetworkProps
   /// with the given fields replaced by the non-null parameter values.
@@ -1428,7 +1526,8 @@ abstract class _NetworkProps implements NetworkProps {
   const factory _NetworkProps(
       {final bool systemProxy,
       final List<String> bypassDomain,
-      final RouteMode routeMode}) = _$NetworkPropsImpl;
+      final RouteMode routeMode,
+      final bool autoSetSystemDns}) = _$NetworkPropsImpl;
 
   factory _NetworkProps.fromJson(Map<String, dynamic> json) =
       _$NetworkPropsImpl.fromJson;
@@ -1439,6 +1538,8 @@ abstract class _NetworkProps implements NetworkProps {
   List<String> get bypassDomain;
   @override
   RouteMode get routeMode;
+  @override
+  bool get autoSetSystemDns;
 
   /// Create a copy of NetworkProps
   /// with the given fields replaced by the non-null parameter values.
@@ -1717,6 +1818,170 @@ abstract class _ProxiesStyle implements ProxiesStyle {
       throw _privateConstructorUsedError;
 }
 
+TextScale _$TextScaleFromJson(Map<String, dynamic> json) {
+  return _TextScale.fromJson(json);
+}
+
+/// @nodoc
+mixin _$TextScale {
+  dynamic get enable => throw _privateConstructorUsedError;
+  dynamic get scale => throw _privateConstructorUsedError;
+
+  /// Serializes this TextScale to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of TextScale
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $TextScaleCopyWith<TextScale> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $TextScaleCopyWith<$Res> {
+  factory $TextScaleCopyWith(TextScale value, $Res Function(TextScale) then) =
+      _$TextScaleCopyWithImpl<$Res, TextScale>;
+  @useResult
+  $Res call({dynamic enable, dynamic scale});
+}
+
+/// @nodoc
+class _$TextScaleCopyWithImpl<$Res, $Val extends TextScale>
+    implements $TextScaleCopyWith<$Res> {
+  _$TextScaleCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of TextScale
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? enable = freezed,
+    Object? scale = freezed,
+  }) {
+    return _then(_value.copyWith(
+      enable: freezed == enable
+          ? _value.enable
+          : enable // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+      scale: freezed == scale
+          ? _value.scale
+          : scale // ignore: cast_nullable_to_non_nullable
+              as dynamic,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$TextScaleImplCopyWith<$Res>
+    implements $TextScaleCopyWith<$Res> {
+  factory _$$TextScaleImplCopyWith(
+          _$TextScaleImpl value, $Res Function(_$TextScaleImpl) then) =
+      __$$TextScaleImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({dynamic enable, dynamic scale});
+}
+
+/// @nodoc
+class __$$TextScaleImplCopyWithImpl<$Res>
+    extends _$TextScaleCopyWithImpl<$Res, _$TextScaleImpl>
+    implements _$$TextScaleImplCopyWith<$Res> {
+  __$$TextScaleImplCopyWithImpl(
+      _$TextScaleImpl _value, $Res Function(_$TextScaleImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of TextScale
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? enable = freezed,
+    Object? scale = freezed,
+  }) {
+    return _then(_$TextScaleImpl(
+      enable: freezed == enable ? _value.enable! : enable,
+      scale: freezed == scale ? _value.scale! : scale,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$TextScaleImpl implements _TextScale {
+  const _$TextScaleImpl({this.enable = false, this.scale = 1.0});
+
+  factory _$TextScaleImpl.fromJson(Map<String, dynamic> json) =>
+      _$$TextScaleImplFromJson(json);
+
+  @override
+  @JsonKey()
+  final dynamic enable;
+  @override
+  @JsonKey()
+  final dynamic scale;
+
+  @override
+  String toString() {
+    return 'TextScale(enable: $enable, scale: $scale)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$TextScaleImpl &&
+            const DeepCollectionEquality().equals(other.enable, enable) &&
+            const DeepCollectionEquality().equals(other.scale, scale));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(enable),
+      const DeepCollectionEquality().hash(scale));
+
+  /// Create a copy of TextScale
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$TextScaleImplCopyWith<_$TextScaleImpl> get copyWith =>
+      __$$TextScaleImplCopyWithImpl<_$TextScaleImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$TextScaleImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _TextScale implements TextScale {
+  const factory _TextScale({final dynamic enable, final dynamic scale}) =
+      _$TextScaleImpl;
+
+  factory _TextScale.fromJson(Map<String, dynamic> json) =
+      _$TextScaleImpl.fromJson;
+
+  @override
+  dynamic get enable;
+  @override
+  dynamic get scale;
+
+  /// Create a copy of TextScale
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TextScaleImplCopyWith<_$TextScaleImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) {
   return _ThemeProps.fromJson(json);
 }
@@ -1724,8 +1989,11 @@ ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ThemeProps {
   int? get primaryColor => throw _privateConstructorUsedError;
+  List<int> get primaryColors => throw _privateConstructorUsedError;
   ThemeMode get themeMode => throw _privateConstructorUsedError;
+  DynamicSchemeVariant get schemeVariant => throw _privateConstructorUsedError;
   bool get pureBlack => throw _privateConstructorUsedError;
+  TextScale get textScale => throw _privateConstructorUsedError;
 
   /// Serializes this ThemeProps to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1743,7 +2011,15 @@ abstract class $ThemePropsCopyWith<$Res> {
           ThemeProps value, $Res Function(ThemeProps) then) =
       _$ThemePropsCopyWithImpl<$Res, ThemeProps>;
   @useResult
-  $Res call({int? primaryColor, ThemeMode themeMode, bool pureBlack});
+  $Res call(
+      {int? primaryColor,
+      List<int> primaryColors,
+      ThemeMode themeMode,
+      DynamicSchemeVariant schemeVariant,
+      bool pureBlack,
+      TextScale textScale});
+
+  $TextScaleCopyWith<$Res> get textScale;
 }
 
 /// @nodoc
@@ -1762,23 +2038,48 @@ class _$ThemePropsCopyWithImpl<$Res, $Val extends ThemeProps>
   @override
   $Res call({
     Object? primaryColor = freezed,
+    Object? primaryColors = null,
     Object? themeMode = null,
+    Object? schemeVariant = null,
     Object? pureBlack = null,
+    Object? textScale = null,
   }) {
     return _then(_value.copyWith(
       primaryColor: freezed == primaryColor
           ? _value.primaryColor
           : primaryColor // ignore: cast_nullable_to_non_nullable
               as int?,
+      primaryColors: null == primaryColors
+          ? _value.primaryColors
+          : primaryColors // ignore: cast_nullable_to_non_nullable
+              as List<int>,
       themeMode: null == themeMode
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
               as ThemeMode,
+      schemeVariant: null == schemeVariant
+          ? _value.schemeVariant
+          : schemeVariant // ignore: cast_nullable_to_non_nullable
+              as DynamicSchemeVariant,
       pureBlack: null == pureBlack
           ? _value.pureBlack
           : pureBlack // ignore: cast_nullable_to_non_nullable
               as bool,
+      textScale: null == textScale
+          ? _value.textScale
+          : textScale // ignore: cast_nullable_to_non_nullable
+              as TextScale,
     ) as $Val);
+  }
+
+  /// Create a copy of ThemeProps
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TextScaleCopyWith<$Res> get textScale {
+    return $TextScaleCopyWith<$Res>(_value.textScale, (value) {
+      return _then(_value.copyWith(textScale: value) as $Val);
+    });
   }
 }
 
@@ -1790,7 +2091,16 @@ abstract class _$$ThemePropsImplCopyWith<$Res>
       __$$ThemePropsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int? primaryColor, ThemeMode themeMode, bool pureBlack});
+  $Res call(
+      {int? primaryColor,
+      List<int> primaryColors,
+      ThemeMode themeMode,
+      DynamicSchemeVariant schemeVariant,
+      bool pureBlack,
+      TextScale textScale});
+
+  @override
+  $TextScaleCopyWith<$Res> get textScale;
 }
 
 /// @nodoc
@@ -1807,22 +2117,37 @@ class __$$ThemePropsImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? primaryColor = freezed,
+    Object? primaryColors = null,
     Object? themeMode = null,
+    Object? schemeVariant = null,
     Object? pureBlack = null,
+    Object? textScale = null,
   }) {
     return _then(_$ThemePropsImpl(
       primaryColor: freezed == primaryColor
           ? _value.primaryColor
           : primaryColor // ignore: cast_nullable_to_non_nullable
               as int?,
+      primaryColors: null == primaryColors
+          ? _value._primaryColors
+          : primaryColors // ignore: cast_nullable_to_non_nullable
+              as List<int>,
       themeMode: null == themeMode
           ? _value.themeMode
           : themeMode // ignore: cast_nullable_to_non_nullable
               as ThemeMode,
+      schemeVariant: null == schemeVariant
+          ? _value.schemeVariant
+          : schemeVariant // ignore: cast_nullable_to_non_nullable
+              as DynamicSchemeVariant,
       pureBlack: null == pureBlack
           ? _value.pureBlack
           : pureBlack // ignore: cast_nullable_to_non_nullable
               as bool,
+      textScale: null == textScale
+          ? _value.textScale
+          : textScale // ignore: cast_nullable_to_non_nullable
+              as TextScale,
     ));
   }
 }
@@ -1832,24 +2157,43 @@ class __$$ThemePropsImplCopyWithImpl<$Res>
 class _$ThemePropsImpl implements _ThemeProps {
   const _$ThemePropsImpl(
       {this.primaryColor,
-      this.themeMode = ThemeMode.system,
-      this.pureBlack = false});
+      final List<int> primaryColors = defaultPrimaryColors,
+      this.themeMode = ThemeMode.dark,
+      this.schemeVariant = DynamicSchemeVariant.content,
+      this.pureBlack = false,
+      this.textScale = const TextScale()})
+      : _primaryColors = primaryColors;
 
   factory _$ThemePropsImpl.fromJson(Map<String, dynamic> json) =>
       _$$ThemePropsImplFromJson(json);
 
   @override
   final int? primaryColor;
+  final List<int> _primaryColors;
+  @override
+  @JsonKey()
+  List<int> get primaryColors {
+    if (_primaryColors is EqualUnmodifiableListView) return _primaryColors;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_primaryColors);
+  }
+
   @override
   @JsonKey()
   final ThemeMode themeMode;
   @override
   @JsonKey()
+  final DynamicSchemeVariant schemeVariant;
+  @override
+  @JsonKey()
   final bool pureBlack;
+  @override
+  @JsonKey()
+  final TextScale textScale;
 
   @override
   String toString() {
-    return 'ThemeProps(primaryColor: $primaryColor, themeMode: $themeMode, pureBlack: $pureBlack)';
+    return 'ThemeProps(primaryColor: $primaryColor, primaryColors: $primaryColors, themeMode: $themeMode, schemeVariant: $schemeVariant, pureBlack: $pureBlack, textScale: $textScale)';
   }
 
   @override
@@ -1859,16 +2203,28 @@ class _$ThemePropsImpl implements _ThemeProps {
             other is _$ThemePropsImpl &&
             (identical(other.primaryColor, primaryColor) ||
                 other.primaryColor == primaryColor) &&
+            const DeepCollectionEquality()
+                .equals(other._primaryColors, _primaryColors) &&
             (identical(other.themeMode, themeMode) ||
                 other.themeMode == themeMode) &&
+            (identical(other.schemeVariant, schemeVariant) ||
+                other.schemeVariant == schemeVariant) &&
             (identical(other.pureBlack, pureBlack) ||
-                other.pureBlack == pureBlack));
+                other.pureBlack == pureBlack) &&
+            (identical(other.textScale, textScale) ||
+                other.textScale == textScale));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, primaryColor, themeMode, pureBlack);
+  int get hashCode => Object.hash(
+      runtimeType,
+      primaryColor,
+      const DeepCollectionEquality().hash(_primaryColors),
+      themeMode,
+      schemeVariant,
+      pureBlack,
+      textScale);
 
   /// Create a copy of ThemeProps
   /// with the given fields replaced by the non-null parameter values.
@@ -1889,8 +2245,11 @@ class _$ThemePropsImpl implements _ThemeProps {
 abstract class _ThemeProps implements ThemeProps {
   const factory _ThemeProps(
       {final int? primaryColor,
+      final List<int> primaryColors,
       final ThemeMode themeMode,
-      final bool pureBlack}) = _$ThemePropsImpl;
+      final DynamicSchemeVariant schemeVariant,
+      final bool pureBlack,
+      final TextScale textScale}) = _$ThemePropsImpl;
 
   factory _ThemeProps.fromJson(Map<String, dynamic> json) =
       _$ThemePropsImpl.fromJson;
@@ -1898,15 +2257,198 @@ abstract class _ThemeProps implements ThemeProps {
   @override
   int? get primaryColor;
   @override
+  List<int> get primaryColors;
+  @override
   ThemeMode get themeMode;
   @override
+  DynamicSchemeVariant get schemeVariant;
+  @override
   bool get pureBlack;
+  @override
+  TextScale get textScale;
 
   /// Create a copy of ThemeProps
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ThemePropsImplCopyWith<_$ThemePropsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ScriptProps _$ScriptPropsFromJson(Map<String, dynamic> json) {
+  return _ScriptProps.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ScriptProps {
+  String? get currentId => throw _privateConstructorUsedError;
+  List<Script> get scripts => throw _privateConstructorUsedError;
+
+  /// Serializes this ScriptProps to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ScriptProps
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ScriptPropsCopyWith<ScriptProps> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ScriptPropsCopyWith<$Res> {
+  factory $ScriptPropsCopyWith(
+          ScriptProps value, $Res Function(ScriptProps) then) =
+      _$ScriptPropsCopyWithImpl<$Res, ScriptProps>;
+  @useResult
+  $Res call({String? currentId, List<Script> scripts});
+}
+
+/// @nodoc
+class _$ScriptPropsCopyWithImpl<$Res, $Val extends ScriptProps>
+    implements $ScriptPropsCopyWith<$Res> {
+  _$ScriptPropsCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ScriptProps
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentId = freezed,
+    Object? scripts = null,
+  }) {
+    return _then(_value.copyWith(
+      currentId: freezed == currentId
+          ? _value.currentId
+          : currentId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      scripts: null == scripts
+          ? _value.scripts
+          : scripts // ignore: cast_nullable_to_non_nullable
+              as List<Script>,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ScriptPropsImplCopyWith<$Res>
+    implements $ScriptPropsCopyWith<$Res> {
+  factory _$$ScriptPropsImplCopyWith(
+          _$ScriptPropsImpl value, $Res Function(_$ScriptPropsImpl) then) =
+      __$$ScriptPropsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String? currentId, List<Script> scripts});
+}
+
+/// @nodoc
+class __$$ScriptPropsImplCopyWithImpl<$Res>
+    extends _$ScriptPropsCopyWithImpl<$Res, _$ScriptPropsImpl>
+    implements _$$ScriptPropsImplCopyWith<$Res> {
+  __$$ScriptPropsImplCopyWithImpl(
+      _$ScriptPropsImpl _value, $Res Function(_$ScriptPropsImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ScriptProps
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentId = freezed,
+    Object? scripts = null,
+  }) {
+    return _then(_$ScriptPropsImpl(
+      currentId: freezed == currentId
+          ? _value.currentId
+          : currentId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      scripts: null == scripts
+          ? _value._scripts
+          : scripts // ignore: cast_nullable_to_non_nullable
+              as List<Script>,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ScriptPropsImpl implements _ScriptProps {
+  const _$ScriptPropsImpl(
+      {this.currentId, final List<Script> scripts = const []})
+      : _scripts = scripts;
+
+  factory _$ScriptPropsImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ScriptPropsImplFromJson(json);
+
+  @override
+  final String? currentId;
+  final List<Script> _scripts;
+  @override
+  @JsonKey()
+  List<Script> get scripts {
+    if (_scripts is EqualUnmodifiableListView) return _scripts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_scripts);
+  }
+
+  @override
+  String toString() {
+    return 'ScriptProps(currentId: $currentId, scripts: $scripts)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ScriptPropsImpl &&
+            (identical(other.currentId, currentId) ||
+                other.currentId == currentId) &&
+            const DeepCollectionEquality().equals(other._scripts, _scripts));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, currentId, const DeepCollectionEquality().hash(_scripts));
+
+  /// Create a copy of ScriptProps
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ScriptPropsImplCopyWith<_$ScriptPropsImpl> get copyWith =>
+      __$$ScriptPropsImplCopyWithImpl<_$ScriptPropsImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ScriptPropsImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ScriptProps implements ScriptProps {
+  const factory _ScriptProps(
+      {final String? currentId,
+      final List<Script> scripts}) = _$ScriptPropsImpl;
+
+  factory _ScriptProps.fromJson(Map<String, dynamic> json) =
+      _$ScriptPropsImpl.fromJson;
+
+  @override
+  String? get currentId;
+  @override
+  List<Script> get scripts;
+
+  /// Create a copy of ScriptProps
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ScriptPropsImplCopyWith<_$ScriptPropsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -1930,6 +2472,7 @@ mixin _$Config {
   ProxiesStyle get proxiesStyle => throw _privateConstructorUsedError;
   WindowProps get windowProps => throw _privateConstructorUsedError;
   ClashConfig get patchClashConfig => throw _privateConstructorUsedError;
+  ScriptProps get scriptProps => throw _privateConstructorUsedError;
 
   /// Serializes this Config to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1958,7 +2501,8 @@ abstract class $ConfigCopyWith<$Res> {
       @JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps,
       ProxiesStyle proxiesStyle,
       WindowProps windowProps,
-      ClashConfig patchClashConfig});
+      ClashConfig patchClashConfig,
+      ScriptProps scriptProps});
 
   $AppSettingPropsCopyWith<$Res> get appSetting;
   $DAVCopyWith<$Res>? get dav;
@@ -1968,6 +2512,7 @@ abstract class $ConfigCopyWith<$Res> {
   $ProxiesStyleCopyWith<$Res> get proxiesStyle;
   $WindowPropsCopyWith<$Res> get windowProps;
   $ClashConfigCopyWith<$Res> get patchClashConfig;
+  $ScriptPropsCopyWith<$Res> get scriptProps;
 }
 
 /// @nodoc
@@ -1997,6 +2542,7 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
     Object? proxiesStyle = null,
     Object? windowProps = null,
     Object? patchClashConfig = null,
+    Object? scriptProps = null,
   }) {
     return _then(_value.copyWith(
       appSetting: null == appSetting
@@ -2047,6 +2593,10 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
           ? _value.patchClashConfig
           : patchClashConfig // ignore: cast_nullable_to_non_nullable
               as ClashConfig,
+      scriptProps: null == scriptProps
+          ? _value.scriptProps
+          : scriptProps // ignore: cast_nullable_to_non_nullable
+              as ScriptProps,
     ) as $Val);
   }
 
@@ -2133,6 +2683,16 @@ class _$ConfigCopyWithImpl<$Res, $Val extends Config>
       return _then(_value.copyWith(patchClashConfig: value) as $Val);
     });
   }
+
+  /// Create a copy of Config
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ScriptPropsCopyWith<$Res> get scriptProps {
+    return $ScriptPropsCopyWith<$Res>(_value.scriptProps, (value) {
+      return _then(_value.copyWith(scriptProps: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
@@ -2155,7 +2715,8 @@ abstract class _$$ConfigImplCopyWith<$Res> implements $ConfigCopyWith<$Res> {
       @JsonKey(fromJson: ThemeProps.safeFromJson) ThemeProps themeProps,
       ProxiesStyle proxiesStyle,
       WindowProps windowProps,
-      ClashConfig patchClashConfig});
+      ClashConfig patchClashConfig,
+      ScriptProps scriptProps});
 
   @override
   $AppSettingPropsCopyWith<$Res> get appSetting;
@@ -2173,6 +2734,8 @@ abstract class _$$ConfigImplCopyWith<$Res> implements $ConfigCopyWith<$Res> {
   $WindowPropsCopyWith<$Res> get windowProps;
   @override
   $ClashConfigCopyWith<$Res> get patchClashConfig;
+  @override
+  $ScriptPropsCopyWith<$Res> get scriptProps;
 }
 
 /// @nodoc
@@ -2200,6 +2763,7 @@ class __$$ConfigImplCopyWithImpl<$Res>
     Object? proxiesStyle = null,
     Object? windowProps = null,
     Object? patchClashConfig = null,
+    Object? scriptProps = null,
   }) {
     return _then(_$ConfigImpl(
       appSetting: null == appSetting
@@ -2250,6 +2814,10 @@ class __$$ConfigImplCopyWithImpl<$Res>
           ? _value.patchClashConfig
           : patchClashConfig // ignore: cast_nullable_to_non_nullable
               as ClashConfig,
+      scriptProps: null == scriptProps
+          ? _value.scriptProps
+          : scriptProps // ignore: cast_nullable_to_non_nullable
+              as ScriptProps,
     ));
   }
 }
@@ -2270,7 +2838,8 @@ class _$ConfigImpl implements _Config {
       @JsonKey(fromJson: ThemeProps.safeFromJson) required this.themeProps,
       this.proxiesStyle = defaultProxiesStyle,
       this.windowProps = defaultWindowProps,
-      this.patchClashConfig = defaultClashConfig})
+      this.patchClashConfig = defaultClashConfig,
+      this.scriptProps = const ScriptProps()})
       : _profiles = profiles,
         _hotKeyActions = hotKeyActions;
 
@@ -2323,10 +2892,13 @@ class _$ConfigImpl implements _Config {
   @override
   @JsonKey()
   final ClashConfig patchClashConfig;
+  @override
+  @JsonKey()
+  final ScriptProps scriptProps;
 
   @override
   String toString() {
-    return 'Config(appSetting: $appSetting, profiles: $profiles, hotKeyActions: $hotKeyActions, currentProfileId: $currentProfileId, overrideDns: $overrideDns, dav: $dav, networkProps: $networkProps, vpnProps: $vpnProps, themeProps: $themeProps, proxiesStyle: $proxiesStyle, windowProps: $windowProps, patchClashConfig: $patchClashConfig)';
+    return 'Config(appSetting: $appSetting, profiles: $profiles, hotKeyActions: $hotKeyActions, currentProfileId: $currentProfileId, overrideDns: $overrideDns, dav: $dav, networkProps: $networkProps, vpnProps: $vpnProps, themeProps: $themeProps, proxiesStyle: $proxiesStyle, windowProps: $windowProps, patchClashConfig: $patchClashConfig, scriptProps: $scriptProps)';
   }
 
   @override
@@ -2355,7 +2927,9 @@ class _$ConfigImpl implements _Config {
             (identical(other.windowProps, windowProps) ||
                 other.windowProps == windowProps) &&
             (identical(other.patchClashConfig, patchClashConfig) ||
-                other.patchClashConfig == patchClashConfig));
+                other.patchClashConfig == patchClashConfig) &&
+            (identical(other.scriptProps, scriptProps) ||
+                other.scriptProps == scriptProps));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2373,7 +2947,8 @@ class _$ConfigImpl implements _Config {
       themeProps,
       proxiesStyle,
       windowProps,
-      patchClashConfig);
+      patchClashConfig,
+      scriptProps);
 
   /// Create a copy of Config
   /// with the given fields replaced by the non-null parameter values.
@@ -2406,7 +2981,8 @@ abstract class _Config implements Config {
       required final ThemeProps themeProps,
       final ProxiesStyle proxiesStyle,
       final WindowProps windowProps,
-      final ClashConfig patchClashConfig}) = _$ConfigImpl;
+      final ClashConfig patchClashConfig,
+      final ScriptProps scriptProps}) = _$ConfigImpl;
 
   factory _Config.fromJson(Map<String, dynamic> json) = _$ConfigImpl.fromJson;
 
@@ -2436,6 +3012,8 @@ abstract class _Config implements Config {
   WindowProps get windowProps;
   @override
   ClashConfig get patchClashConfig;
+  @override
+  ScriptProps get scriptProps;
 
   /// Create a copy of Config
   /// with the given fields replaced by the non-null parameter values.

@@ -36,9 +36,8 @@ const defaultNetworkProps = NetworkProps();
 const defaultProxiesStyle = ProxiesStyle();
 const defaultWindowProps = WindowProps();
 const defaultAccessControl = AccessControl();
-final defaultThemeProps = ThemeProps().copyWith(
-  primaryColor: defaultPrimaryColor.value,
-  themeMode: ThemeMode.dark,
+final defaultThemeProps = ThemeProps(
+  primaryColor: defaultPrimaryColor,
 );
 
 const List<DashboardWidget> defaultDashboardWidgets = [
@@ -84,6 +83,8 @@ class AppSettingProps with _$AppSettingProps {
     @Default(false) bool disclaimerAccepted,
     @Default(true) bool minimizeOnExit,
     @Default(false) bool hidden,
+    @Default(false) bool developerMode,
+    @Default(RecoveryStrategy.compatible) RecoveryStrategy recoveryStrategy,
   }) = _AppSettingProps;
 
   factory AppSettingProps.fromJson(Map<String, Object?> json) =>
@@ -105,6 +106,7 @@ class AccessControl with _$AccessControl {
     @Default([]) List<String> rejectList,
     @Default(AccessSortType.none) AccessSortType sort,
     @Default(true) bool isFilterSystemApp,
+    @Default(true) bool isFilterNonInternetApp,
   }) = _AccessControl;
 
   factory AccessControl.fromJson(Map<String, Object?> json) =>
@@ -121,7 +123,7 @@ extension AccessControlExt on AccessControl {
 @freezed
 class WindowProps with _$WindowProps {
   const factory WindowProps({
-    @Default(900) double width,
+    @Default(750) double width,
     @Default(600) double height,
     double? top,
     double? left,
@@ -142,7 +144,7 @@ class VpnProps with _$VpnProps {
   }) = _VpnProps;
 
   factory VpnProps.fromJson(Map<String, Object?>? json) =>
-      json == null ? const VpnProps() : _$VpnPropsFromJson(json);
+      json == null ? defaultVpnProps : _$VpnPropsFromJson(json);
 }
 
 @freezed
@@ -150,7 +152,8 @@ class NetworkProps with _$NetworkProps {
   const factory NetworkProps({
     @Default(true) bool systemProxy,
     @Default(defaultBypassDomain) List<String> bypassDomain,
-    @Default(RouteMode.bypassPrivate) RouteMode routeMode,
+    @Default(RouteMode.config) RouteMode routeMode,
+    @Default(true) bool autoSetSystemDns,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
@@ -173,11 +176,25 @@ class ProxiesStyle with _$ProxiesStyle {
 }
 
 @freezed
+class TextScale with _$TextScale {
+  const factory TextScale({
+    @Default(false) enable,
+    @Default(1.0) scale,
+  }) = _TextScale;
+
+  factory TextScale.fromJson(Map<String, Object?> json) =>
+      _$TextScaleFromJson(json);
+}
+
+@freezed
 class ThemeProps with _$ThemeProps {
   const factory ThemeProps({
     int? primaryColor,
-    @Default(ThemeMode.system) ThemeMode themeMode,
+    @Default(defaultPrimaryColors) List<int> primaryColors,
+    @Default(ThemeMode.dark) ThemeMode themeMode,
+    @Default(DynamicSchemeVariant.content) DynamicSchemeVariant schemeVariant,
     @Default(false) bool pureBlack,
+    @Default(TextScale()) TextScale textScale,
   }) = _ThemeProps;
 
   factory ThemeProps.fromJson(Map<String, Object?> json) =>
@@ -192,6 +209,35 @@ class ThemeProps with _$ThemeProps {
     } catch (_) {
       return defaultThemeProps;
     }
+  }
+}
+
+@freezed
+class ScriptProps with _$ScriptProps {
+  const factory ScriptProps({
+    String? currentId,
+    @Default([]) List<Script> scripts,
+  }) = _ScriptProps;
+
+  factory ScriptProps.fromJson(Map<String, Object?> json) =>
+      _$ScriptPropsFromJson(json);
+}
+
+extension ScriptPropsExt on ScriptProps {
+  String? get realId {
+    final index = scripts.indexWhere((script) => script.id == currentId);
+    if (index != -1) {
+      return currentId;
+    }
+    return null;
+  }
+
+  Script? get currentScript {
+    final index = scripts.indexWhere((script) => script.id == currentId);
+    if (index != -1) {
+      return scripts[index];
+    }
+    return null;
   }
 }
 
@@ -212,6 +258,7 @@ class Config with _$Config {
     @Default(defaultProxiesStyle) ProxiesStyle proxiesStyle,
     @Default(defaultWindowProps) WindowProps windowProps,
     @Default(defaultClashConfig) ClashConfig patchClashConfig,
+    @Default(ScriptProps()) ScriptProps scriptProps,
   }) = _Config;
 
   factory Config.fromJson(Map<String, Object?> json) => _$ConfigFromJson(json);

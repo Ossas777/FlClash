@@ -2,6 +2,7 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/widgets/dialog.dart';
 import 'package:flutter/material.dart';
 
 class BaseNavigator {
@@ -10,6 +11,21 @@ class BaseNavigator {
       return await Navigator.of(context).push<T>(
         CommonDesktopRoute(
           builder: (context) => child,
+        ),
+      );
+    }
+    return await Navigator.of(context).push<T>(
+      CommonRoute(
+        builder: (context) => child,
+      ),
+    );
+  }
+
+  static Future<T?> modal<T>(BuildContext context, Widget child) async {
+    if (globalState.appState.viewMode != ViewMode.mobile) {
+      return await globalState.showCommonDialog<T>(
+        child: CommonModal(
+          child: child,
         ),
       );
     }
@@ -70,7 +86,7 @@ class CommonRoute<T> extends MaterialPageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 500);
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 250);
+  Duration get reverseTransitionDuration => const Duration(milliseconds: 500);
 }
 
 final Animatable<Offset> _kRightMiddleTween = Tween<Offset>(
@@ -194,7 +210,7 @@ class _CommonPageTransitionState extends State<CommonPageTransition> {
       _primaryPositionCurve = CurvedAnimation(
         parent: widget.primaryRouteAnimation,
         curve: Curves.fastEaseInToSlowEaseOut,
-        reverseCurve: Curves.easeInOut,
+        reverseCurve: Curves.fastEaseInToSlowEaseOut.flipped,
       );
       _secondaryPositionCurve = CurvedAnimation(
         parent: widget.secondaryRouteAnimation,
@@ -218,9 +234,7 @@ class _CommonPageTransitionState extends State<CommonPageTransition> {
         begin: const _CommonEdgeShadowDecoration(),
         end: _CommonEdgeShadowDecoration(
           <Color>[
-            widget.context.colorScheme.inverseSurface.withOpacity(
-              0.06,
-            ),
+            widget.context.colorScheme.inverseSurface.withValues(alpha: 0.02),
             Colors.transparent,
           ],
         ),
@@ -274,7 +288,7 @@ class _CommonEdgeShadowPainter extends BoxPainter {
       return;
     }
 
-    final double shadowWidth = 0.03 * configuration.size!.width;
+    final double shadowWidth = 1 * configuration.size!.width;
     final double shadowHeight = configuration.size!.height;
     final double bandWidth = shadowWidth / (colors.length - 1);
 

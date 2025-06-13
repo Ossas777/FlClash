@@ -32,7 +32,7 @@ class InfoHeader extends StatelessWidget {
     return Padding(
       padding: padding ?? baseInfoEdgeInsets,
       child: Row(
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
@@ -85,14 +85,13 @@ class CommonCard extends StatelessWidget {
   const CommonCard({
     super.key,
     bool? isSelected,
-    this.type = CommonCardType.filled,
+    this.type = CommonCardType.plain,
     this.onPressed,
     this.selectWidget,
-    this.backgroundColor,
     this.radius = 12,
     required this.child,
+    this.padding,
     this.enterAnimated = false,
-    this.borderSide,
     this.info,
   }) : isSelected = isSelected ?? false;
 
@@ -101,20 +100,22 @@ class CommonCard extends StatelessWidget {
   final void Function()? onPressed;
   final Widget? selectWidget;
   final Widget child;
+  final EdgeInsets? padding;
   final Info? info;
   final CommonCardType type;
   final double radius;
-  final WidgetStateProperty<Color?>? backgroundColor;
-  final WidgetStateProperty<BorderSide?>? borderSide;
+
+  // final WidgetStateProperty<Color?>? backgroundColor;
+  // final WidgetStateProperty<BorderSide?>? borderSide;
 
   BorderSide getBorderSide(BuildContext context, Set<WidgetState> states) {
     final colorScheme = context.colorScheme;
-    // if (type == CommonCardType.filled) {
-    //   return BorderSide.none;
-    // }
+    if (type == CommonCardType.filled) {
+      return BorderSide.none;
+    }
     final hoverColor = isSelected
-        ? colorScheme.primary.toLight
-        : colorScheme.primary.toLighter;
+        ? colorScheme.primary.opacity80
+        : colorScheme.primary.opacity60;
     if (states.contains(WidgetState.hovered) ||
         states.contains(WidgetState.focused) ||
         states.contains(WidgetState.pressed)) {
@@ -123,31 +124,24 @@ class CommonCard extends StatelessWidget {
       );
     }
     return BorderSide(
-      color: isSelected ? colorScheme.primary : colorScheme.onSurface.toSoft,
+      color: isSelected
+          ? colorScheme.primary
+          : colorScheme.surfaceContainerHighest,
     );
   }
 
   Color? getBackgroundColor(BuildContext context, Set<WidgetState> states) {
     final colorScheme = context.colorScheme;
-    switch (type) {
-      case CommonCardType.plain:
-        if (isSelected) {
-          return colorScheme.secondaryContainer;
-        }
-        if (states.isEmpty) {
-          return colorScheme.surface;
-        }
-        return Theme.of(context)
-            .outlinedButtonTheme
-            .style
-            ?.backgroundColor
-            ?.resolve(states);
-      case CommonCardType.filled:
-        if (isSelected) {
-          return colorScheme.secondaryContainer;
-        }
-        return colorScheme.surfaceContainer;
+    if (type == CommonCardType.filled) {
+      if (isSelected) {
+        return colorScheme.secondaryContainer.opacity80;
+      }
+      return colorScheme.surfaceContainer;
     }
+    if (isSelected) {
+      return colorScheme.secondaryContainer;
+    }
+    return colorScheme.surfaceContainerLow;
   }
 
   @override
@@ -186,6 +180,7 @@ class CommonCard extends StatelessWidget {
     }
 
     final card = OutlinedButton(
+      onLongPress: null,
       clipBehavior: Clip.antiAlias,
       style: ButtonStyle(
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
@@ -196,14 +191,12 @@ class CommonCard extends StatelessWidget {
         ),
         iconColor: WidgetStatePropertyAll(context.colorScheme.primary),
         iconSize: WidgetStateProperty.all(20),
-        backgroundColor: backgroundColor ??
-            WidgetStateProperty.resolveWith(
-              (states) => getBackgroundColor(context, states),
-            ),
-        side: borderSide ??
-            WidgetStateProperty.resolveWith(
-              (states) => getBorderSide(context, states),
-            ),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => getBackgroundColor(context, states),
+        ),
+        side: WidgetStateProperty.resolveWith(
+          (states) => getBorderSide(context, states),
+        ),
       ),
       onPressed: onPressed,
       child: childWidget,
@@ -232,6 +225,39 @@ class SelectIcon extends StatelessWidget {
           Icons.check,
           size: 16,
         ),
+      ),
+    );
+  }
+}
+
+class SettingsBlock extends StatelessWidget {
+  final String title;
+  final List<Widget> settings;
+
+  const SettingsBlock({
+    super.key,
+    required this.title,
+    required this.settings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: Column(
+        children: [
+          InfoHeader(
+            info: Info(
+              label: title,
+            ),
+          ),
+          Card(
+            color: context.colorScheme.surfaceContainer,
+            child: Column(
+              children: settings,
+            ),
+          ),
+        ],
       ),
     );
   }

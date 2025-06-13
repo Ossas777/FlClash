@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:fl_clash/fragments/dashboard/widgets/widgets.dart';
+import 'package:fl_clash/views/dashboard/widgets/widgets.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -91,7 +91,14 @@ enum Mode { rule, global, direct }
 
 enum ViewMode { mobile, laptop, desktop }
 
-enum LogLevel { debug, info, warning, error, silent }
+enum LogLevel {
+  debug,
+  info,
+  warning,
+  error,
+  silent,
+  app,
+}
 
 enum TransportProtocol { udp, tcp }
 
@@ -111,7 +118,12 @@ enum AccessSortType { none, name, time }
 
 enum ProfileType { file, url }
 
-enum ResultType { success, error }
+enum ResultType {
+  @JsonValue(0)
+  success,
+  @JsonValue(-1)
+  error,
+}
 
 enum AppMessageType {
   log,
@@ -157,9 +169,13 @@ enum DnsMode {
 
 enum ExternalControllerStatus {
   @JsonValue("")
-  close,
+  close(""),
   @JsonValue("127.0.0.1:9090")
-  open
+  open("127.0.0.1:9090");
+
+  final String value;
+
+  const ExternalControllerStatus(this.value);
 }
 
 enum KeyboardModifier {
@@ -220,11 +236,12 @@ enum ProxiesIconStyle {
 
 enum FontFamily {
   twEmoji("Twemoji"),
+  jetBrainsMono("JetBrainsMono"),
   icon("Icons");
 
-  final String? value;
+  final String value;
 
-  const FontFamily([this.value]);
+  const FontFamily(this.value);
 }
 
 enum RouteMode {
@@ -240,6 +257,7 @@ enum ActionMethod {
   shutdown,
   validateConfig,
   updateConfig,
+  getConfig,
   getProxies,
   changeProxy,
   getTraffic,
@@ -248,6 +266,7 @@ enum ActionMethod {
   asyncTestDelay,
   getConnections,
   closeConnections,
+  resetConnections,
   closeConnection,
   getExternalProviders,
   getExternalProvider,
@@ -260,11 +279,10 @@ enum ActionMethod {
   stopListener,
   getCountryCode,
   getMemory,
-  getProfile,
+  crash,
+  setupConfig,
 
   ///Android,
-  setFdMap,
-  setProcessMap,
   setState,
   startTun,
   stopTun,
@@ -282,8 +300,10 @@ enum WindowsHelperServiceStatus {
   running,
 }
 
-enum DebounceTag {
+enum FunctionTag {
   updateClashConfig,
+  setupClashConfig,
+  updateStatus,
   updateGroups,
   addCheckIpNum,
   applyProfile,
@@ -298,6 +318,8 @@ enum DebounceTag {
   updatePageIndex,
   pageChange,
   proxiesTabChange,
+  logs,
+  requests,
 }
 
 enum DashboardWidget {
@@ -305,6 +327,12 @@ enum DashboardWidget {
     GridItem(
       crossAxisCellCount: 8,
       child: NetworkSpeed(),
+    ),
+  ),
+  outboundModeV2(
+    GridItem(
+      crossAxisCellCount: 8,
+      child: OutboundModeV2(),
     ),
   ),
   outboundMode(
@@ -331,6 +359,15 @@ enum DashboardWidget {
       child: TUNButton(),
     ),
     platforms: desktopPlatforms,
+  ),
+  vpnButton(
+    GridItem(
+      crossAxisCellCount: 4,
+      child: VpnButton(),
+    ),
+    platforms: [
+      SupportPlatform.Android,
+    ],
   ),
   systemProxyButton(
     GridItem(
@@ -383,4 +420,87 @@ enum PageLabel {
   requests,
   resources,
   connections,
+}
+
+enum RuleAction {
+  DOMAIN("DOMAIN"),
+  DOMAIN_SUFFIX("DOMAIN-SUFFIX"),
+  DOMAIN_KEYWORD("DOMAIN-KEYWORD"),
+  DOMAIN_REGEX("DOMAIN-REGEX"),
+  GEOSITE("GEOSITE"),
+  IP_CIDR("IP-CIDR"),
+  IP_CIDR6("IP-CIDR6"),
+  IP_SUFFIX("IP-SUFFIX"),
+  IP_ASN("IP-ASN"),
+  GEOIP("GEOIP"),
+  SRC_GEOIP("SRC-GEOIP"),
+  SRC_IP_ASN("SRC-IP-ASN"),
+  SRC_IP_CIDR("SRC-IP-CIDR"),
+  SRC_IP_SUFFIX("SRC-IP-SUFFIX"),
+  DST_PORT("DST-PORT"),
+  SRC_PORT("SRC-PORT"),
+  IN_PORT("IN-PORT"),
+  IN_TYPE("IN-TYPE"),
+  IN_USER("IN-USER"),
+  IN_NAME("IN-NAME"),
+  PROCESS_PATH("PROCESS-PATH"),
+  PROCESS_PATH_REGEX("PROCESS-PATH-REGEX"),
+  PROCESS_NAME("PROCESS-NAME"),
+  PROCESS_NAME_REGEX("PROCESS-NAME-REGEX"),
+  UID("UID"),
+  NETWORK("NETWORK"),
+  DSCP("DSCP"),
+  RULE_SET("RULE-SET"),
+  AND("AND"),
+  OR("OR"),
+  NOT("NOT"),
+  SUB_RULE("SUB-RULE"),
+  MATCH("MATCH");
+
+  final String value;
+
+  const RuleAction(this.value);
+}
+
+extension RuleActionExt on RuleAction {
+  bool get hasParams => [
+        RuleAction.GEOIP,
+        RuleAction.IP_ASN,
+        RuleAction.SRC_IP_ASN,
+        RuleAction.IP_CIDR,
+        RuleAction.IP_CIDR6,
+        RuleAction.IP_SUFFIX,
+        RuleAction.RULE_SET,
+      ].contains(this);
+}
+
+enum OverrideRuleType {
+  override,
+  added,
+}
+
+enum RuleTarget {
+  DIRECT,
+  REJECT,
+}
+
+enum RecoveryStrategy {
+  compatible,
+  override,
+}
+
+enum CacheTag {
+  logs,
+  rules,
+  requests,
+}
+
+enum Language {
+  yaml,
+  javaScript,
+}
+
+enum ImportOption {
+  file,
+  url,
 }

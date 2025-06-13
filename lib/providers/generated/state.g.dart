@@ -6,6 +6,22 @@ part of '../state.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$configStateHash() => r'1f4ea3cc8f6461ba734e7e0c5d7295bfa4fd5afb';
+
+/// See also [configState].
+@ProviderFor(configState)
+final configStateProvider = AutoDisposeProvider<Config>.internal(
+  configState,
+  name: r'configStateProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$configStateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ConfigStateRef = AutoDisposeProviderRef<Config>;
 String _$currentGroupsStateHash() =>
     r'6222c006e1970e7435268d32903b9019cf1a4351';
 
@@ -78,23 +94,22 @@ final coreStateProvider = AutoDisposeProvider<CoreState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CoreStateRef = AutoDisposeProviderRef<CoreState>;
-String _$clashConfigStateHash() => r'0708f81450e740a471c65d1dd5db0ed0dc702b3c';
+String _$updateParamsHash() => r'79fd7a5a8650fabac3a2ca7ce903c1d9eb363ed2';
 
-/// See also [clashConfigState].
-@ProviderFor(clashConfigState)
-final clashConfigStateProvider = AutoDisposeProvider<ClashConfigState>.internal(
-  clashConfigState,
-  name: r'clashConfigStateProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$clashConfigStateHash,
+/// See also [updateParams].
+@ProviderFor(updateParams)
+final updateParamsProvider = AutoDisposeProvider<UpdateParams>.internal(
+  updateParams,
+  name: r'updateParamsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$updateParamsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ClashConfigStateRef = AutoDisposeProviderRef<ClashConfigState>;
+typedef UpdateParamsRef = AutoDisposeProviderRef<UpdateParams>;
 String _$proxyStateHash() => r'22478fb593aaca11dfe2cf64472013190475a5bc';
 
 /// See also [proxyState].
@@ -143,7 +158,7 @@ final vpnStateProvider = AutoDisposeProvider<VpnState>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef VpnStateRef = AutoDisposeProviderRef<VpnState>;
-String _$homeStateHash() => r'4c8a996c43a705f6d089a727563c20ff87e13a97';
+String _$homeStateHash() => r'2829f5d6a8548f8a97253a5437bf5c498b17c9ba';
 
 /// See also [homeState].
 @ProviderFor(homeState)
@@ -216,7 +231,7 @@ final startButtonSelectorStateProvider =
 typedef StartButtonSelectorStateRef
     = AutoDisposeProviderRef<StartButtonSelectorState>;
 String _$profilesSelectorStateHash() =>
-    r'9fa4447dace0322e888efb38cbee1dabd33e0e71';
+    r'aac2deee6e747eceaf62cb5f279ec99ce9227a5a';
 
 /// See also [profilesSelectorState].
 @ProviderFor(profilesSelectorState)
@@ -236,7 +251,7 @@ final profilesSelectorStateProvider =
 typedef ProfilesSelectorStateRef
     = AutoDisposeProviderRef<ProfilesSelectorState>;
 String _$proxiesListSelectorStateHash() =>
-    r'0e63ea2fb141e086156a2ed8452584e2375c5aa5';
+    r'5e6bbe1a0cecbdea6c9c62e6ccf314968deac264';
 
 /// See also [proxiesListSelectorState].
 @ProviderFor(proxiesListSelectorState)
@@ -292,7 +307,7 @@ final groupNamesStateProvider = AutoDisposeProvider<GroupNamesState>.internal(
 // ignore: unused_element
 typedef GroupNamesStateRef = AutoDisposeProviderRef<GroupNamesState>;
 String _$proxyGroupSelectorStateHash() =>
-    r'5bc86d13286c6c859f0b874235a281122cc612ba';
+    r'27d42af16ed77f2d22017edbb34ab60f45566be3';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -469,7 +484,7 @@ final packageListSelectorStateProvider =
 typedef PackageListSelectorStateRef
     = AutoDisposeProviderRef<PackageListSelectorState>;
 String _$moreToolsSelectorStateHash() =>
-    r'82837b45198a75af9a9ce49b9c3ef97c6f8e9f87';
+    r'd27e3eceec2422ad6b6231cf52b892e63c67e365';
 
 /// See also [moreToolsSelectorState].
 @ProviderFor(moreToolsSelectorState)
@@ -488,7 +503,7 @@ final moreToolsSelectorStateProvider =
 // ignore: unused_element
 typedef MoreToolsSelectorStateRef
     = AutoDisposeProviderRef<MoreToolsSelectorState>;
-String _$isCurrentPageHash() => r'562702367f009c7b324395ab0a2ad3464784be8c';
+String _$isCurrentPageHash() => r'7c300770aef90da23109d9fcfc3bf26140d8cd08';
 
 /// See also [isCurrentPage].
 @ProviderFor(isCurrentPage)
@@ -1091,7 +1106,7 @@ final currentProfileProvider = AutoDisposeProvider<Profile?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CurrentProfileRef = AutoDisposeProviderRef<Profile?>;
-String _$getProxiesColumnsHash() => r'895705381fe361fa40f16da2f9cb26e8da3293e8';
+String _$getProxiesColumnsHash() => r'725066b5fc21f590a4c2656a1fd5e14ab7079079';
 
 /// See also [getProxiesColumns].
 @ProviderFor(getProxiesColumns)
@@ -1630,5 +1645,388 @@ class _GetProxyDescProviderElement extends AutoDisposeProviderElement<String>
   @override
   Proxy get proxy => (origin as GetProxyDescProvider).proxy;
 }
+
+String _$getProfileOverrideDataHash() =>
+    r'a17ec085f1733b63b123ac08aa7737588c048c5f';
+
+/// See also [getProfileOverrideData].
+@ProviderFor(getProfileOverrideData)
+const getProfileOverrideDataProvider = GetProfileOverrideDataFamily();
+
+/// See also [getProfileOverrideData].
+class GetProfileOverrideDataFamily extends Family<OverrideData?> {
+  /// See also [getProfileOverrideData].
+  const GetProfileOverrideDataFamily();
+
+  /// See also [getProfileOverrideData].
+  GetProfileOverrideDataProvider call(
+    String profileId,
+  ) {
+    return GetProfileOverrideDataProvider(
+      profileId,
+    );
+  }
+
+  @override
+  GetProfileOverrideDataProvider getProviderOverride(
+    covariant GetProfileOverrideDataProvider provider,
+  ) {
+    return call(
+      provider.profileId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'getProfileOverrideDataProvider';
+}
+
+/// See also [getProfileOverrideData].
+class GetProfileOverrideDataProvider
+    extends AutoDisposeProvider<OverrideData?> {
+  /// See also [getProfileOverrideData].
+  GetProfileOverrideDataProvider(
+    String profileId,
+  ) : this._internal(
+          (ref) => getProfileOverrideData(
+            ref as GetProfileOverrideDataRef,
+            profileId,
+          ),
+          from: getProfileOverrideDataProvider,
+          name: r'getProfileOverrideDataProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$getProfileOverrideDataHash,
+          dependencies: GetProfileOverrideDataFamily._dependencies,
+          allTransitiveDependencies:
+              GetProfileOverrideDataFamily._allTransitiveDependencies,
+          profileId: profileId,
+        );
+
+  GetProfileOverrideDataProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.profileId,
+  }) : super.internal();
+
+  final String profileId;
+
+  @override
+  Override overrideWith(
+    OverrideData? Function(GetProfileOverrideDataRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GetProfileOverrideDataProvider._internal(
+        (ref) => create(ref as GetProfileOverrideDataRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        profileId: profileId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<OverrideData?> createElement() {
+    return _GetProfileOverrideDataProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GetProfileOverrideDataProvider &&
+        other.profileId == profileId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, profileId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GetProfileOverrideDataRef on AutoDisposeProviderRef<OverrideData?> {
+  /// The parameter `profileId` of this provider.
+  String get profileId;
+}
+
+class _GetProfileOverrideDataProviderElement
+    extends AutoDisposeProviderElement<OverrideData?>
+    with GetProfileOverrideDataRef {
+  _GetProfileOverrideDataProviderElement(super.provider);
+
+  @override
+  String get profileId => (origin as GetProfileOverrideDataProvider).profileId;
+}
+
+String _$layoutChangeHash() => r'f25182e1dfaf3c70000404d7635bb1e1db09efbb';
+
+/// See also [layoutChange].
+@ProviderFor(layoutChange)
+final layoutChangeProvider = AutoDisposeProvider<VM2?>.internal(
+  layoutChange,
+  name: r'layoutChangeProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$layoutChangeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef LayoutChangeRef = AutoDisposeProviderRef<VM2?>;
+String _$checkIpHash() => r'07ebf8d032349e2b3adda483e68b1936ffbed68d';
+
+/// See also [checkIp].
+@ProviderFor(checkIp)
+final checkIpProvider = AutoDisposeProvider<VM2<int, bool>>.internal(
+  checkIp,
+  name: r'checkIpProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$checkIpHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CheckIpRef = AutoDisposeProviderRef<VM2<int, bool>>;
+String _$genColorSchemeHash() => r'b18f15c938a8132ee4ed02cdfc02f3b9f01724e2';
+
+/// See also [genColorScheme].
+@ProviderFor(genColorScheme)
+const genColorSchemeProvider = GenColorSchemeFamily();
+
+/// See also [genColorScheme].
+class GenColorSchemeFamily extends Family<ColorScheme> {
+  /// See also [genColorScheme].
+  const GenColorSchemeFamily();
+
+  /// See also [genColorScheme].
+  GenColorSchemeProvider call(
+    Brightness brightness, {
+    Color? color,
+    bool ignoreConfig = false,
+  }) {
+    return GenColorSchemeProvider(
+      brightness,
+      color: color,
+      ignoreConfig: ignoreConfig,
+    );
+  }
+
+  @override
+  GenColorSchemeProvider getProviderOverride(
+    covariant GenColorSchemeProvider provider,
+  ) {
+    return call(
+      provider.brightness,
+      color: provider.color,
+      ignoreConfig: provider.ignoreConfig,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'genColorSchemeProvider';
+}
+
+/// See also [genColorScheme].
+class GenColorSchemeProvider extends AutoDisposeProvider<ColorScheme> {
+  /// See also [genColorScheme].
+  GenColorSchemeProvider(
+    Brightness brightness, {
+    Color? color,
+    bool ignoreConfig = false,
+  }) : this._internal(
+          (ref) => genColorScheme(
+            ref as GenColorSchemeRef,
+            brightness,
+            color: color,
+            ignoreConfig: ignoreConfig,
+          ),
+          from: genColorSchemeProvider,
+          name: r'genColorSchemeProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$genColorSchemeHash,
+          dependencies: GenColorSchemeFamily._dependencies,
+          allTransitiveDependencies:
+              GenColorSchemeFamily._allTransitiveDependencies,
+          brightness: brightness,
+          color: color,
+          ignoreConfig: ignoreConfig,
+        );
+
+  GenColorSchemeProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.brightness,
+    required this.color,
+    required this.ignoreConfig,
+  }) : super.internal();
+
+  final Brightness brightness;
+  final Color? color;
+  final bool ignoreConfig;
+
+  @override
+  Override overrideWith(
+    ColorScheme Function(GenColorSchemeRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: GenColorSchemeProvider._internal(
+        (ref) => create(ref as GenColorSchemeRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        brightness: brightness,
+        color: color,
+        ignoreConfig: ignoreConfig,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<ColorScheme> createElement() {
+    return _GenColorSchemeProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is GenColorSchemeProvider &&
+        other.brightness == brightness &&
+        other.color == color &&
+        other.ignoreConfig == ignoreConfig;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, brightness.hashCode);
+    hash = _SystemHash.combine(hash, color.hashCode);
+    hash = _SystemHash.combine(hash, ignoreConfig.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin GenColorSchemeRef on AutoDisposeProviderRef<ColorScheme> {
+  /// The parameter `brightness` of this provider.
+  Brightness get brightness;
+
+  /// The parameter `color` of this provider.
+  Color? get color;
+
+  /// The parameter `ignoreConfig` of this provider.
+  bool get ignoreConfig;
+}
+
+class _GenColorSchemeProviderElement
+    extends AutoDisposeProviderElement<ColorScheme> with GenColorSchemeRef {
+  _GenColorSchemeProviderElement(super.provider);
+
+  @override
+  Brightness get brightness => (origin as GenColorSchemeProvider).brightness;
+  @override
+  Color? get color => (origin as GenColorSchemeProvider).color;
+  @override
+  bool get ignoreConfig => (origin as GenColorSchemeProvider).ignoreConfig;
+}
+
+String _$needSetupHash() => r'3668e8dc9f40a9bea45c94321804eb3afa0e7c51';
+
+/// See also [needSetup].
+@ProviderFor(needSetup)
+final needSetupProvider =
+    AutoDisposeProvider<VM3<String?, String?, Dns?>>.internal(
+  needSetup,
+  name: r'needSetupProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$needSetupHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef NeedSetupRef = AutoDisposeProviderRef<VM3<String?, String?, Dns?>>;
+String _$autoSetSystemDnsStateHash() =>
+    r'2e0976e079100325b1ca797285df48a94c2c066c';
+
+/// See also [autoSetSystemDnsState].
+@ProviderFor(autoSetSystemDnsState)
+final autoSetSystemDnsStateProvider =
+    AutoDisposeProvider<VM2<bool, bool>>.internal(
+  autoSetSystemDnsState,
+  name: r'autoSetSystemDnsStateProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$autoSetSystemDnsStateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AutoSetSystemDnsStateRef = AutoDisposeProviderRef<VM2<bool, bool>>;
+String _$profileOverrideStateHash() =>
+    r'fa26570a355ab39e27b1f93d1d2f358717065592';
+
+/// See also [ProfileOverrideState].
+@ProviderFor(ProfileOverrideState)
+final profileOverrideStateProvider = AutoDisposeNotifierProvider<
+    ProfileOverrideState, ProfileOverrideStateModel>.internal(
+  ProfileOverrideState.new,
+  name: r'profileOverrideStateProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$profileOverrideStateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ProfileOverrideState = AutoDisposeNotifier<ProfileOverrideStateModel>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

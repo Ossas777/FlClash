@@ -1,3 +1,83 @@
+## v0.8.85
+
+- Support override script
+
+- Support proxies search
+
+- Support svg display
+
+- Optimize config persistence
+
+- Add some scenes auto close connections
+
+- Update core
+
+- Optimize more details
+
+## v0.8.84
+
+- Fix windows service verify issues
+
+- Update changelog
+
+## v0.8.83
+
+- Add windows server mode start process verify
+
+- Add linux deb dependencies
+
+- Add backup recovery strategy select
+
+- Support custom text scaling
+
+- Optimize the display of different text scale
+
+- Optimize windows setup experience
+
+- Optimize startTun performance
+
+- Optimize android tv experience
+
+- Optimize default option
+
+- Optimize computed text size
+
+- Optimize hyperOS freeform window
+
+- Add developer mode
+
+- Update core
+
+- Optimize more details
+
+- Add issues template
+
+- Update changelog
+
+## v0.8.82
+
+- Optimize android vpn performance
+
+- Add custom primary color and color scheme
+
+- Add linux nad windows arm release
+
+- Optimize requests and logs page
+
+- Fix map input page delete issues
+
+- Update changelog
+
+## v0.8.81
+
+- Add rule override
+
+- Update core
+
+- Optimize more details
+
+- Update changelog
+
 ## v0.8.80
 
 - Optimize dashboard performance

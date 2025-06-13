@@ -17,11 +17,11 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AppState {
   bool get isInit => throw _privateConstructorUsedError;
+  bool get backBlock => throw _privateConstructorUsedError;
   PageLabel get pageLabel => throw _privateConstructorUsedError;
   List<Package> get packages => throw _privateConstructorUsedError;
-  ColorSchemes get colorSchemes => throw _privateConstructorUsedError;
   int get sortNum => throw _privateConstructorUsedError;
-  double get viewWidth => throw _privateConstructorUsedError;
+  Size get viewSize => throw _privateConstructorUsedError;
   Map<String, Map<String, int?>> get delayMap =>
       throw _privateConstructorUsedError;
   List<Group> get groups => throw _privateConstructorUsedError;
@@ -35,6 +35,8 @@ mixin _$AppState {
   FixedList<Log> get logs => throw _privateConstructorUsedError;
   FixedList<Traffic> get traffics => throw _privateConstructorUsedError;
   Traffic get totalTraffic => throw _privateConstructorUsedError;
+  String get proxiesQuery => throw _privateConstructorUsedError;
+  bool get realTunEnable => throw _privateConstructorUsedError;
 
   /// Create a copy of AppState
   /// with the given fields replaced by the non-null parameter values.
@@ -50,11 +52,11 @@ abstract class $AppStateCopyWith<$Res> {
   @useResult
   $Res call(
       {bool isInit,
+      bool backBlock,
       PageLabel pageLabel,
       List<Package> packages,
-      ColorSchemes colorSchemes,
       int sortNum,
-      double viewWidth,
+      Size viewSize,
       Map<String, Map<String, int?>> delayMap,
       List<Group> groups,
       int checkIpNum,
@@ -66,9 +68,9 @@ abstract class $AppStateCopyWith<$Res> {
       int version,
       FixedList<Log> logs,
       FixedList<Traffic> traffics,
-      Traffic totalTraffic});
-
-  $ColorSchemesCopyWith<$Res> get colorSchemes;
+      Traffic totalTraffic,
+      String proxiesQuery,
+      bool realTunEnable});
 }
 
 /// @nodoc
@@ -87,11 +89,11 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
   @override
   $Res call({
     Object? isInit = null,
+    Object? backBlock = null,
     Object? pageLabel = null,
     Object? packages = null,
-    Object? colorSchemes = null,
     Object? sortNum = null,
-    Object? viewWidth = null,
+    Object? viewSize = null,
     Object? delayMap = null,
     Object? groups = null,
     Object? checkIpNum = null,
@@ -104,11 +106,17 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
     Object? logs = null,
     Object? traffics = null,
     Object? totalTraffic = null,
+    Object? proxiesQuery = null,
+    Object? realTunEnable = null,
   }) {
     return _then(_value.copyWith(
       isInit: null == isInit
           ? _value.isInit
           : isInit // ignore: cast_nullable_to_non_nullable
+              as bool,
+      backBlock: null == backBlock
+          ? _value.backBlock
+          : backBlock // ignore: cast_nullable_to_non_nullable
               as bool,
       pageLabel: null == pageLabel
           ? _value.pageLabel
@@ -118,18 +126,14 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
           ? _value.packages
           : packages // ignore: cast_nullable_to_non_nullable
               as List<Package>,
-      colorSchemes: null == colorSchemes
-          ? _value.colorSchemes
-          : colorSchemes // ignore: cast_nullable_to_non_nullable
-              as ColorSchemes,
       sortNum: null == sortNum
           ? _value.sortNum
           : sortNum // ignore: cast_nullable_to_non_nullable
               as int,
-      viewWidth: null == viewWidth
-          ? _value.viewWidth
-          : viewWidth // ignore: cast_nullable_to_non_nullable
-              as double,
+      viewSize: null == viewSize
+          ? _value.viewSize
+          : viewSize // ignore: cast_nullable_to_non_nullable
+              as Size,
       delayMap: null == delayMap
           ? _value.delayMap
           : delayMap // ignore: cast_nullable_to_non_nullable
@@ -178,17 +182,15 @@ class _$AppStateCopyWithImpl<$Res, $Val extends AppState>
           ? _value.totalTraffic
           : totalTraffic // ignore: cast_nullable_to_non_nullable
               as Traffic,
+      proxiesQuery: null == proxiesQuery
+          ? _value.proxiesQuery
+          : proxiesQuery // ignore: cast_nullable_to_non_nullable
+              as String,
+      realTunEnable: null == realTunEnable
+          ? _value.realTunEnable
+          : realTunEnable // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
-  }
-
-  /// Create a copy of AppState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $ColorSchemesCopyWith<$Res> get colorSchemes {
-    return $ColorSchemesCopyWith<$Res>(_value.colorSchemes, (value) {
-      return _then(_value.copyWith(colorSchemes: value) as $Val);
-    });
   }
 }
 
@@ -202,11 +204,11 @@ abstract class _$$AppStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {bool isInit,
+      bool backBlock,
       PageLabel pageLabel,
       List<Package> packages,
-      ColorSchemes colorSchemes,
       int sortNum,
-      double viewWidth,
+      Size viewSize,
       Map<String, Map<String, int?>> delayMap,
       List<Group> groups,
       int checkIpNum,
@@ -218,10 +220,9 @@ abstract class _$$AppStateImplCopyWith<$Res>
       int version,
       FixedList<Log> logs,
       FixedList<Traffic> traffics,
-      Traffic totalTraffic});
-
-  @override
-  $ColorSchemesCopyWith<$Res> get colorSchemes;
+      Traffic totalTraffic,
+      String proxiesQuery,
+      bool realTunEnable});
 }
 
 /// @nodoc
@@ -238,11 +239,11 @@ class __$$AppStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? isInit = null,
+    Object? backBlock = null,
     Object? pageLabel = null,
     Object? packages = null,
-    Object? colorSchemes = null,
     Object? sortNum = null,
-    Object? viewWidth = null,
+    Object? viewSize = null,
     Object? delayMap = null,
     Object? groups = null,
     Object? checkIpNum = null,
@@ -255,11 +256,17 @@ class __$$AppStateImplCopyWithImpl<$Res>
     Object? logs = null,
     Object? traffics = null,
     Object? totalTraffic = null,
+    Object? proxiesQuery = null,
+    Object? realTunEnable = null,
   }) {
     return _then(_$AppStateImpl(
       isInit: null == isInit
           ? _value.isInit
           : isInit // ignore: cast_nullable_to_non_nullable
+              as bool,
+      backBlock: null == backBlock
+          ? _value.backBlock
+          : backBlock // ignore: cast_nullable_to_non_nullable
               as bool,
       pageLabel: null == pageLabel
           ? _value.pageLabel
@@ -269,18 +276,14 @@ class __$$AppStateImplCopyWithImpl<$Res>
           ? _value._packages
           : packages // ignore: cast_nullable_to_non_nullable
               as List<Package>,
-      colorSchemes: null == colorSchemes
-          ? _value.colorSchemes
-          : colorSchemes // ignore: cast_nullable_to_non_nullable
-              as ColorSchemes,
       sortNum: null == sortNum
           ? _value.sortNum
           : sortNum // ignore: cast_nullable_to_non_nullable
               as int,
-      viewWidth: null == viewWidth
-          ? _value.viewWidth
-          : viewWidth // ignore: cast_nullable_to_non_nullable
-              as double,
+      viewSize: null == viewSize
+          ? _value.viewSize
+          : viewSize // ignore: cast_nullable_to_non_nullable
+              as Size,
       delayMap: null == delayMap
           ? _value._delayMap
           : delayMap // ignore: cast_nullable_to_non_nullable
@@ -329,6 +332,14 @@ class __$$AppStateImplCopyWithImpl<$Res>
           ? _value.totalTraffic
           : totalTraffic // ignore: cast_nullable_to_non_nullable
               as Traffic,
+      proxiesQuery: null == proxiesQuery
+          ? _value.proxiesQuery
+          : proxiesQuery // ignore: cast_nullable_to_non_nullable
+              as String,
+      realTunEnable: null == realTunEnable
+          ? _value.realTunEnable
+          : realTunEnable // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -338,11 +349,11 @@ class __$$AppStateImplCopyWithImpl<$Res>
 class _$AppStateImpl implements _AppState {
   const _$AppStateImpl(
       {this.isInit = false,
+      this.backBlock = false,
       this.pageLabel = PageLabel.dashboard,
       final List<Package> packages = const [],
-      this.colorSchemes = const ColorSchemes(),
       this.sortNum = 0,
-      required this.viewWidth,
+      required this.viewSize,
       final Map<String, Map<String, int?>> delayMap = const {},
       final List<Group> groups = const [],
       this.checkIpNum = 0,
@@ -354,7 +365,9 @@ class _$AppStateImpl implements _AppState {
       required this.version,
       required this.logs,
       required this.traffics,
-      required this.totalTraffic})
+      required this.totalTraffic,
+      this.proxiesQuery = "",
+      this.realTunEnable = false})
       : _packages = packages,
         _delayMap = delayMap,
         _groups = groups,
@@ -363,6 +376,9 @@ class _$AppStateImpl implements _AppState {
   @override
   @JsonKey()
   final bool isInit;
+  @override
+  @JsonKey()
+  final bool backBlock;
   @override
   @JsonKey()
   final PageLabel pageLabel;
@@ -377,12 +393,9 @@ class _$AppStateImpl implements _AppState {
 
   @override
   @JsonKey()
-  final ColorSchemes colorSchemes;
-  @override
-  @JsonKey()
   final int sortNum;
   @override
-  final double viewWidth;
+  final Size viewSize;
   final Map<String, Map<String, int?>> _delayMap;
   @override
   @JsonKey()
@@ -429,10 +442,16 @@ class _$AppStateImpl implements _AppState {
   final FixedList<Traffic> traffics;
   @override
   final Traffic totalTraffic;
+  @override
+  @JsonKey()
+  final String proxiesQuery;
+  @override
+  @JsonKey()
+  final bool realTunEnable;
 
   @override
   String toString() {
-    return 'AppState(isInit: $isInit, pageLabel: $pageLabel, packages: $packages, colorSchemes: $colorSchemes, sortNum: $sortNum, viewWidth: $viewWidth, delayMap: $delayMap, groups: $groups, checkIpNum: $checkIpNum, brightness: $brightness, runTime: $runTime, providers: $providers, localIp: $localIp, requests: $requests, version: $version, logs: $logs, traffics: $traffics, totalTraffic: $totalTraffic)';
+    return 'AppState(isInit: $isInit, backBlock: $backBlock, pageLabel: $pageLabel, packages: $packages, sortNum: $sortNum, viewSize: $viewSize, delayMap: $delayMap, groups: $groups, checkIpNum: $checkIpNum, brightness: $brightness, runTime: $runTime, providers: $providers, localIp: $localIp, requests: $requests, version: $version, logs: $logs, traffics: $traffics, totalTraffic: $totalTraffic, proxiesQuery: $proxiesQuery, realTunEnable: $realTunEnable)';
   }
 
   @override
@@ -441,14 +460,14 @@ class _$AppStateImpl implements _AppState {
         (other.runtimeType == runtimeType &&
             other is _$AppStateImpl &&
             (identical(other.isInit, isInit) || other.isInit == isInit) &&
+            (identical(other.backBlock, backBlock) ||
+                other.backBlock == backBlock) &&
             (identical(other.pageLabel, pageLabel) ||
                 other.pageLabel == pageLabel) &&
             const DeepCollectionEquality().equals(other._packages, _packages) &&
-            (identical(other.colorSchemes, colorSchemes) ||
-                other.colorSchemes == colorSchemes) &&
             (identical(other.sortNum, sortNum) || other.sortNum == sortNum) &&
-            (identical(other.viewWidth, viewWidth) ||
-                other.viewWidth == viewWidth) &&
+            (identical(other.viewSize, viewSize) ||
+                other.viewSize == viewSize) &&
             const DeepCollectionEquality().equals(other._delayMap, _delayMap) &&
             const DeepCollectionEquality().equals(other._groups, _groups) &&
             (identical(other.checkIpNum, checkIpNum) ||
@@ -466,30 +485,37 @@ class _$AppStateImpl implements _AppState {
             (identical(other.traffics, traffics) ||
                 other.traffics == traffics) &&
             (identical(other.totalTraffic, totalTraffic) ||
-                other.totalTraffic == totalTraffic));
+                other.totalTraffic == totalTraffic) &&
+            (identical(other.proxiesQuery, proxiesQuery) ||
+                other.proxiesQuery == proxiesQuery) &&
+            (identical(other.realTunEnable, realTunEnable) ||
+                other.realTunEnable == realTunEnable));
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      isInit,
-      pageLabel,
-      const DeepCollectionEquality().hash(_packages),
-      colorSchemes,
-      sortNum,
-      viewWidth,
-      const DeepCollectionEquality().hash(_delayMap),
-      const DeepCollectionEquality().hash(_groups),
-      checkIpNum,
-      brightness,
-      runTime,
-      const DeepCollectionEquality().hash(_providers),
-      localIp,
-      requests,
-      version,
-      logs,
-      traffics,
-      totalTraffic);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        isInit,
+        backBlock,
+        pageLabel,
+        const DeepCollectionEquality().hash(_packages),
+        sortNum,
+        viewSize,
+        const DeepCollectionEquality().hash(_delayMap),
+        const DeepCollectionEquality().hash(_groups),
+        checkIpNum,
+        brightness,
+        runTime,
+        const DeepCollectionEquality().hash(_providers),
+        localIp,
+        requests,
+        version,
+        logs,
+        traffics,
+        totalTraffic,
+        proxiesQuery,
+        realTunEnable
+      ]);
 
   /// Create a copy of AppState
   /// with the given fields replaced by the non-null parameter values.
@@ -503,11 +529,11 @@ class _$AppStateImpl implements _AppState {
 abstract class _AppState implements AppState {
   const factory _AppState(
       {final bool isInit,
+      final bool backBlock,
       final PageLabel pageLabel,
       final List<Package> packages,
-      final ColorSchemes colorSchemes,
       final int sortNum,
-      required final double viewWidth,
+      required final Size viewSize,
       final Map<String, Map<String, int?>> delayMap,
       final List<Group> groups,
       final int checkIpNum,
@@ -519,20 +545,22 @@ abstract class _AppState implements AppState {
       required final int version,
       required final FixedList<Log> logs,
       required final FixedList<Traffic> traffics,
-      required final Traffic totalTraffic}) = _$AppStateImpl;
+      required final Traffic totalTraffic,
+      final String proxiesQuery,
+      final bool realTunEnable}) = _$AppStateImpl;
 
   @override
   bool get isInit;
+  @override
+  bool get backBlock;
   @override
   PageLabel get pageLabel;
   @override
   List<Package> get packages;
   @override
-  ColorSchemes get colorSchemes;
-  @override
   int get sortNum;
   @override
-  double get viewWidth;
+  Size get viewSize;
   @override
   Map<String, Map<String, int?>> get delayMap;
   @override
@@ -557,6 +585,10 @@ abstract class _AppState implements AppState {
   FixedList<Traffic> get traffics;
   @override
   Traffic get totalTraffic;
+  @override
+  String get proxiesQuery;
+  @override
+  bool get realTunEnable;
 
   /// Create a copy of AppState
   /// with the given fields replaced by the non-null parameter values.

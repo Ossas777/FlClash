@@ -1,20 +1,19 @@
 import 'dart:async';
 
-import 'package:dynamic_color/dynamic_color.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fl_clash/clash/clash.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/hotkey_manager.dart';
 import 'package:fl_clash/manager/manager.dart';
 import 'package:fl_clash/plugins/app.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controller.dart';
-import 'models/models.dart';
 import 'pages/pages.dart';
 
 class Application extends ConsumerStatefulWidget {
@@ -27,7 +26,6 @@ class Application extends ConsumerStatefulWidget {
 }
 
 class ApplicationState extends ConsumerState<Application> {
-  late ColorSchemes systemColorSchemes;
   Timer? _autoUpdateGroupTaskTimer;
   Timer? _autoUpdateProfilesTaskTimer;
 
@@ -43,16 +41,8 @@ class ApplicationState extends ConsumerState<Application> {
   ColorScheme _getAppColorScheme({
     required Brightness brightness,
     int? primaryColor,
-    required ColorSchemes systemColorSchemes,
   }) {
-    if (primaryColor != null) {
-      return ColorScheme.fromSeed(
-        seedColor: Color(primaryColor),
-        brightness: brightness,
-      );
-    } else {
-      return systemColorSchemes.getColorSchemeForBrightness(brightness);
-    }
+    return ref.read(genColorSchemeProvider(brightness));
   }
 
   @override
@@ -61,16 +51,6 @@ class ApplicationState extends ConsumerState<Application> {
     _autoUpdateGroupTask();
     _autoUpdateProfilesTask();
     globalState.appController = AppController(context, ref);
-    globalState.measure = Measure.of(context);
-    // ref.listenManual(themeSettingProvider.select((state) => state.fontFamily),
-    //     (prev, next) {
-    //   if (prev != next) {
-    //     globalState.measure = Measure.of(
-    //       context,
-    //       fontFamily: next.value,
-    //     );
-    //   }
-    // }, fireImmediately: true);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       final currentContext = globalState.navigatorKey.currentContext;
       if (currentContext != null) {
@@ -98,7 +78,7 @@ class ApplicationState extends ConsumerState<Application> {
     });
   }
 
-  _buildPlatformWrap(Widget child) {
+  _buildPlatformState(Widget child) {
     if (system.isDesktop) {
       return WindowManager(
         child: TrayManager(
@@ -117,22 +97,14 @@ class ApplicationState extends ConsumerState<Application> {
     );
   }
 
-  _buildPage(Widget page) {
-    if (system.isDesktop) {
-      return WindowHeaderContainer(
-        child: page,
-      );
-    }
-    return VpnManager(
-      child: page,
-    );
-  }
-
-  _buildWrap(Widget child) {
+  _buildState(Widget child) {
     return AppStateManager(
       child: ClashManager(
         child: ConnectivityManager(
-          onConnectivityChanged: () {
+          onConnectivityChanged: (results) async {
+            if (!results.contains(ConnectivityResult.vpn)) {
+              await clashCore.closeConnections();
+            }
             globalState.appController.updateLocalIp();
             globalState.appController.addCheckIpNumDebounce();
           },
@@ -142,77 +114,72 @@ class ApplicationState extends ConsumerState<Application> {
     );
   }
 
-  _updateSystemColorSchemes(
-    ColorScheme? lightDynamic,
-    ColorScheme? darkDynamic,
-  ) {
-    systemColorSchemes = ColorSchemes(
-      lightColorScheme: lightDynamic,
-      darkColorScheme: darkDynamic,
+  _buildPlatformApp(Widget child) {
+    if (system.isDesktop) {
+      return WindowHeaderContainer(
+        child: child,
+      );
+    }
+    return VpnManager(
+      child: child,
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      globalState.appController.updateSystemColorSchemes(systemColorSchemes);
-    });
+  }
+
+  _buildApp(Widget child) {
+    return MessageManager(
+      child: ThemeManager(
+        child: child,
+      ),
+    );
   }
 
   @override
   Widget build(context) {
-    return _buildPlatformWrap(
-      _buildWrap(
+    return _buildPlatformState(
+      _buildState(
         Consumer(
           builder: (_, ref, child) {
             final locale =
                 ref.watch(appSettingProvider.select((state) => state.locale));
             final themeProps = ref.watch(themeSettingProvider);
-            return DynamicColorBuilder(
-              builder: (lightDynamic, darkDynamic) {
-                _updateSystemColorSchemes(lightDynamic, darkDynamic);
-                return MaterialApp(
-                  navigatorKey: globalState.navigatorKey,
-                  localizationsDelegates: const [
-                    AppLocalizations.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate
-                  ],
-                  builder: (_, child) {
-                    return MessageManager(
-                      child: LayoutBuilder(
-                        builder: (_, container) {
-                          globalState.appController.updateViewWidth(
-                            container.maxWidth,
-                          );
-                          return _buildPage(child!);
-                        },
-                      ),
-                    );
-                  },
-                  scrollBehavior: BaseScrollBehavior(),
-                  title: appName,
-                  locale: other.getLocaleForString(locale),
-                  supportedLocales: AppLocalizations.delegate.supportedLocales,
-                  themeMode: themeProps.themeMode,
-                  theme: ThemeData(
-                    useMaterial3: true,
-                    pageTransitionsTheme: _pageTransitionsTheme,
-                    colorScheme: _getAppColorScheme(
-                      brightness: Brightness.light,
-                      systemColorSchemes: systemColorSchemes,
-                      primaryColor: themeProps.primaryColor,
-                    ),
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              navigatorKey: globalState.navigatorKey,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate
+              ],
+              builder: (_, child) {
+                return AppEnvManager(
+                  child: _buildPlatformApp(
+                    _buildApp(child!),
                   ),
-                  darkTheme: ThemeData(
-                    useMaterial3: true,
-                    pageTransitionsTheme: _pageTransitionsTheme,
-                    colorScheme: _getAppColorScheme(
-                      brightness: Brightness.dark,
-                      systemColorSchemes: systemColorSchemes,
-                      primaryColor: themeProps.primaryColor,
-                    ).toPureBlack(themeProps.pureBlack),
-                  ),
-                  home: child,
                 );
               },
+              scrollBehavior: BaseScrollBehavior(),
+              title: appName,
+              locale: utils.getLocaleForString(locale),
+              supportedLocales: AppLocalizations.delegate.supportedLocales,
+              themeMode: themeProps.themeMode,
+              theme: ThemeData(
+                useMaterial3: true,
+                pageTransitionsTheme: _pageTransitionsTheme,
+                colorScheme: _getAppColorScheme(
+                  brightness: Brightness.light,
+                  primaryColor: themeProps.primaryColor,
+                ),
+              ),
+              darkTheme: ThemeData(
+                useMaterial3: true,
+                pageTransitionsTheme: _pageTransitionsTheme,
+                colorScheme: _getAppColorScheme(
+                  brightness: Brightness.dark,
+                  primaryColor: themeProps.primaryColor,
+                ).toPureBlack(themeProps.pureBlack),
+              ),
+              home: child,
             );
           },
           child: const HomePage(),

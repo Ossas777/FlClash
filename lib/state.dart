@@ -1,12 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:ffi' show Pointer;
 
 import 'package:animations/animations.dart';
+import 'package:dio/dio.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:fl_clash/clash/clash.dart';
+import 'package:fl_clash/common/theme.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/plugins/service.dart';
+import 'package:fl_clash/widgets/dialog.dart';
 import 'package:fl_clash/widgets/scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_js/flutter_js.dart';
+import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,23 +26,36 @@ typedef UpdateTasks = List<FutureOr Function()>;
 
 class GlobalState {
   static GlobalState? _instance;
+  Map<CacheTag, double> cacheScrollPosition = {};
+  Map<CacheTag, FixedMap<String, double>> cacheHeightMap = {};
   bool isService = false;
   Timer? timer;
   Timer? groupsUpdateTimer;
   late Config config;
   late AppState appState;
+  bool isPre = true;
+  String? coreSHA256;
   late PackageInfo packageInfo;
   Function? updateCurrentDelayDebounce;
-  PageController? pageController;
   late Measure measure;
+  late CommonTheme theme;
+  late Color accentColor;
+  CorePalette? corePalette;
   DateTime? startTime;
   UpdateTasks tasks = [];
-  final safeMessageOffsetNotifier = ValueNotifier(Offset.zero);
   final navigatorKey = GlobalKey<NavigatorState>();
-  late AppController appController;
+  AppController? _appController;
   GlobalKey<CommonScaffoldState> homeScaffoldKey = GlobalKey();
+  bool isInit = false;
 
   bool get isStart => startTime != null && startTime!.isBeforeNow;
+
+  AppController get appController => _appController!;
+
+  set appController(AppController appController) {
+    _appController = appController;
+    isInit = true;
+  }
 
   GlobalState._internal();
 
@@ -44,15 +65,26 @@ class GlobalState {
   }
 
   initApp(int version) async {
+    coreSHA256 = const String.fromEnvironment("CORE_SHA256");
+    isPre = const String.fromEnvironment("APP_ENV") != 'stable';
     appState = AppState(
       version: version,
-      viewWidth: other.getScreenSize().width,
-      requests: FixedList(1000),
-      logs: FixedList(1000),
+      viewSize: Size.zero,
+      requests: FixedList(maxLength),
+      logs: FixedList(maxLength),
       traffics: FixedList(30),
       totalTraffic: Traffic(),
     );
+    await _initDynamicColor();
     await init();
+  }
+
+  _initDynamicColor() async {
+    try {
+      corePalette = await DynamicColorPlugin.getCorePalette();
+      accentColor = await DynamicColorPlugin.getAccentColor() ??
+          Color(defaultPrimaryColor);
+    } catch (_) {}
   }
 
   init() async {
@@ -63,7 +95,7 @@ class GlobalState {
         );
     await globalState.migrateOldData(config);
     await AppLocalizations.load(
-      other.getLocaleForString(config.appSetting.locale) ??
+      utils.getLocaleForString(config.appSetting.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
     );
   }
@@ -108,13 +140,12 @@ class GlobalState {
   Future handleStop() async {
     startTime = null;
     await clashCore.stopListener();
-    await clashLib?.stopTun();
     await service?.stopVpn();
     stopUpdateTasks();
   }
 
   Future<bool?> showMessage({
-    required String title,
+    String? title,
     required InlineSpan message,
     String? confirmText,
     bool cancelable = true,
@@ -122,23 +153,8 @@ class GlobalState {
     return await showCommonDialog<bool>(
       child: Builder(
         builder: (context) {
-          return AlertDialog(
-            title: Text(title),
-            content: Container(
-              width: 300,
-              constraints: const BoxConstraints(maxHeight: 200),
-              child: SingleChildScrollView(
-                child: SelectableText.rich(
-                  TextSpan(
-                    style: Theme.of(context).textTheme.labelLarge,
-                    children: [message],
-                  ),
-                  style: const TextStyle(
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ),
-            ),
+          return CommonDialog(
+            title: title ?? appLocalizations.tip,
             actions: [
               if (cancelable)
                 TextButton(
@@ -154,11 +170,47 @@ class GlobalState {
                 child: Text(confirmText ?? appLocalizations.confirm),
               )
             ],
+            child: Container(
+              width: 300,
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: SingleChildScrollView(
+                child: SelectableText.rich(
+                  TextSpan(
+                    style: Theme.of(context).textTheme.labelLarge,
+                    children: [message],
+                  ),
+                  style: const TextStyle(
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ),
+            ),
           );
         },
       ),
     );
   }
+
+  // Future<Map<String, dynamic>> getProfileMap(String id) async {
+  //   final profilePath = await appPath.getProfilePath(id);
+  //   final res = await Isolate.run<Result<dynamic>>(() async {
+  //     try {
+  //       final file = File(profilePath);
+  //       if (!await file.exists()) {
+  //         return Result.error("");
+  //       }
+  //       final value = await file.readAsString();
+  //       return Result.success(utils.convertYamlNode(loadYaml(value)));
+  //     } catch (e) {
+  //       return Result.error(e.toString());
+  //     }
+  //   });
+  //   if (res.isSuccess) {
+  //     return res.data as Map<String, dynamic>;
+  //   } else {
+  //     throw res.message;
+  //   }
+  // }
 
   Future<T?> showCommonDialog<T>({
     required Widget child,
@@ -171,7 +223,7 @@ class GlobalState {
         barrierDismissible: dismissible,
       ),
       builder: (_) => child,
-      filter: filter,
+      filter: commonFilter,
     );
   }
 
@@ -239,27 +291,286 @@ class GlobalState {
     );
   }
 
-  getUpdateConfigParams([bool? isPatch]) {
-    final currentProfile = config.currentProfile;
-    final clashConfig = config.patchClashConfig;
-    return UpdateConfigParams(
-      profileId: config.currentProfileId ?? "",
-      config: clashConfig.copyWith(
-        globalUa: ua,
-        tun: clashConfig.tun.copyWith(
-          routeAddress: config.networkProps.routeMode == RouteMode.bypassPrivate
-              ? defaultBypassPrivateRouteAddress
-              : clashConfig.tun.routeAddress,
-        ),
-      ),
-      params: ConfigExtendedParams(
-        isPatch: isPatch ?? false,
-        selectedMap: currentProfile?.selectedMap ?? {},
-        overrideDns: config.overrideDns,
-        testUrl: config.appSetting.testUrl,
-      ),
+  Future<SetupParams> getSetupParams({
+    required ClashConfig pathConfig,
+  }) async {
+    final clashConfig = await patchRawConfig(
+      patchConfig: pathConfig,
     );
+    final params = SetupParams(
+      config: clashConfig,
+      selectedMap: config.currentProfile?.selectedMap ?? {},
+      testUrl: config.appSetting.testUrl,
+    );
+    return params;
+  }
+
+  Future<Map<String, dynamic>> patchRawConfig({
+    required ClashConfig patchConfig,
+  }) async {
+    final profile = config.currentProfile;
+    if (profile == null) {
+      return {};
+    }
+    final profileId = profile.id;
+    final configMap = await getProfileConfig(profileId);
+    final rawConfig = await handleEvaluate(configMap);
+    final routeAddress =
+        config.networkProps.routeMode == RouteMode.bypassPrivate
+            ? defaultBypassPrivateRouteAddress
+            : patchConfig.tun.routeAddress;
+    final realPatchConfig = !system.isDesktop
+        ? patchConfig.copyWith.tun(
+            autoRoute: routeAddress.isEmpty ? true : false,
+            routeAddress: routeAddress,
+          )
+        : patchConfig.copyWith.tun(
+            autoRoute: true,
+            routeAddress: [],
+          );
+    rawConfig["external-controller"] = realPatchConfig.externalController.value;
+    rawConfig["external-ui"] = "";
+    rawConfig["interface-name"] = "";
+    rawConfig["external-ui-url"] = "";
+    rawConfig["tcp-concurrent"] = realPatchConfig.tcpConcurrent;
+    rawConfig["unified-delay"] = realPatchConfig.unifiedDelay;
+    rawConfig["ipv6"] = realPatchConfig.ipv6;
+    rawConfig["log-level"] = realPatchConfig.logLevel.name;
+    rawConfig["port"] = 0;
+    rawConfig["socks-port"] = 0;
+    rawConfig["keep-alive-interval"] = realPatchConfig.keepAliveInterval;
+    rawConfig["mixed-port"] = realPatchConfig.mixedPort;
+    rawConfig["port"] = realPatchConfig.port;
+    rawConfig["socks-port"] = realPatchConfig.socksPort;
+    rawConfig["redir-port"] = realPatchConfig.redirPort;
+    rawConfig["tproxy-port"] = realPatchConfig.tproxyPort;
+    rawConfig["find-process-mode"] = realPatchConfig.findProcessMode.name;
+    rawConfig["allow-lan"] = realPatchConfig.allowLan;
+    rawConfig["mode"] = realPatchConfig.mode.name;
+    if (rawConfig["tun"] == null) {
+      rawConfig["tun"] = {};
+    }
+    rawConfig["tun"]["enable"] = realPatchConfig.tun.enable;
+    rawConfig["tun"]["device"] = realPatchConfig.tun.device;
+    rawConfig["tun"]["dns-hijack"] = realPatchConfig.tun.dnsHijack;
+    rawConfig["tun"]["stack"] = realPatchConfig.tun.stack.name;
+    rawConfig["tun"]["route-address"] = realPatchConfig.tun.routeAddress;
+    rawConfig["tun"]["auto-route"] = realPatchConfig.tun.autoRoute;
+    rawConfig["geodata-loader"] = realPatchConfig.geodataLoader.name;
+    if (rawConfig["sniffer"]?["sniff"] != null) {
+      for (final value in (rawConfig["sniffer"]?["sniff"] as Map).values) {
+        if (value["ports"] != null && value["ports"] is List) {
+          value["ports"] =
+              value["ports"]?.map((item) => item.toString()).toList() ?? [];
+        }
+      }
+    }
+    if (rawConfig["profile"] == null) {
+      rawConfig["profile"] = {};
+    }
+    if (rawConfig["proxy-providers"] != null) {
+      final proxyProviders = rawConfig["proxy-providers"] as Map;
+      for (final key in proxyProviders.keys) {
+        final proxyProvider = proxyProviders[key];
+        if (proxyProvider["type"] != "http") {
+          continue;
+        }
+        if (proxyProvider["url"] != null) {
+          proxyProvider["path"] = await appPath.getProvidersFilePath(
+            profile.id,
+            "proxies",
+            proxyProvider["url"],
+          );
+        }
+      }
+    }
+
+    if (rawConfig["rule-providers"] != null) {
+      final ruleProviders = rawConfig["rule-providers"] as Map;
+      for (final key in ruleProviders.keys) {
+        final ruleProvider = ruleProviders[key];
+        if (ruleProvider["type"] != "http") {
+          continue;
+        }
+        if (ruleProvider["url"] != null) {
+          ruleProvider["path"] = await appPath.getProvidersFilePath(
+            profile.id,
+            "rules",
+            ruleProvider["url"],
+          );
+        }
+      }
+    }
+
+    rawConfig["profile"]["store-selected"] = false;
+    rawConfig["geox-url"] = realPatchConfig.geoXUrl.toJson();
+    rawConfig["global-ua"] = realPatchConfig.globalUa;
+    if (rawConfig["hosts"] == null) {
+      rawConfig["hosts"] = {};
+    }
+    for (final host in realPatchConfig.hosts.entries) {
+      rawConfig["hosts"][host.key] = host.value.splitByMultipleSeparators;
+    }
+    final overrideDns = globalState.config.overrideDns;
+    if (overrideDns) {
+      rawConfig["dns"] = realPatchConfig.dns.toJson();
+      rawConfig["dns"]["nameserver-policy"] = {};
+      for (final entry in realPatchConfig.dns.nameserverPolicy.entries) {
+        rawConfig["dns"]["nameserver-policy"][entry.key] =
+            entry.value.splitByMultipleSeparators;
+      }
+    } else {
+      if (rawConfig["dns"] == null) {
+        rawConfig["dns"] = {};
+      }
+      if (rawConfig["dns"]["enable"] != false) {
+        rawConfig["dns"]["enable"] = true;
+      }
+    }
+    var rules = [];
+    if (rawConfig["rules"] != null) {
+      rules = rawConfig["rules"];
+    }
+    rawConfig.remove("rules");
+
+    final overrideData = profile.overrideData;
+    if (overrideData.enable && config.scriptProps.currentScript == null) {
+      if (overrideData.rule.type == OverrideRuleType.override) {
+        rules = overrideData.runningRule;
+      } else {
+        rules = [...overrideData.runningRule, ...rules];
+      }
+    }
+    rawConfig["rule"] = rules;
+    return rawConfig;
+  }
+
+  Future<Map<String, dynamic>> getProfileConfig(String profileId) async {
+    final configMap = await switch (clashLibHandler != null) {
+      true => clashLibHandler!.getConfig(profileId),
+      false => clashCore.getConfig(profileId),
+    };
+    configMap["rules"] = configMap["rule"];
+    configMap.remove("rule");
+    return configMap;
+  }
+
+  Future<Map<String, dynamic>> handleEvaluate(
+    Map<String, dynamic> config,
+  ) async {
+    final currentScript = globalState.config.scriptProps.currentScript;
+    if (currentScript == null) {
+      return config;
+    }
+    if (config["proxy-providers"] == null) {
+      config["proxy-providers"] = {};
+    }
+    final configJs = json.encode(config);
+    final runtime = getJavascriptRuntime();
+    final res = await runtime.evaluateAsync("""
+      ${currentScript.content}
+      main($configJs)
+    """);
+    if (res.isError) {
+      throw res.stringResult;
+    }
+    final value = switch (res.rawResult is Pointer) {
+      true => runtime.convertValue<Map<String, dynamic>>(res),
+      false => Map<String, dynamic>.from(res.rawResult),
+    };
+    return value ?? config;
   }
 }
 
 final globalState = GlobalState();
+
+class DetectionState {
+  static DetectionState? _instance;
+  bool? _preIsStart;
+  Timer? _setTimeoutTimer;
+  CancelToken? cancelToken;
+
+  final state = ValueNotifier<NetworkDetectionState>(
+    const NetworkDetectionState(
+      isTesting: false,
+      isLoading: true,
+      ipInfo: null,
+    ),
+  );
+
+  DetectionState._internal();
+
+  factory DetectionState() {
+    _instance ??= DetectionState._internal();
+    return _instance!;
+  }
+
+  startCheck() {
+    debouncer.call(
+      FunctionTag.checkIp,
+      _checkIp,
+    );
+  }
+
+  _checkIp() async {
+    final appState = globalState.appState;
+    final isInit = appState.isInit;
+    if (!isInit) return;
+    final isStart = appState.runTime != null;
+    if (_preIsStart == false &&
+        _preIsStart == isStart &&
+        state.value.ipInfo != null) {
+      return;
+    }
+    _clearSetTimeoutTimer();
+    state.value = state.value.copyWith(
+      isLoading: true,
+      ipInfo: null,
+    );
+    _preIsStart = isStart;
+    if (cancelToken != null) {
+      cancelToken!.cancel();
+      cancelToken = null;
+    }
+    cancelToken = CancelToken();
+    try {
+      state.value = state.value.copyWith(
+        isTesting: true,
+      );
+      final ipInfo = await request.checkIp(cancelToken: cancelToken);
+      state.value = state.value.copyWith(
+        isTesting: false,
+      );
+      if (ipInfo != null) {
+        state.value = state.value.copyWith(
+          isLoading: false,
+          ipInfo: ipInfo,
+        );
+        return;
+      }
+      _clearSetTimeoutTimer();
+      _setTimeoutTimer = Timer(const Duration(milliseconds: 300), () {
+        state.value = state.value.copyWith(
+          isLoading: false,
+          ipInfo: null,
+        );
+      });
+    } catch (e) {
+      if (e.toString() == "cancelled") {
+        state.value = state.value.copyWith(
+          isLoading: true,
+          ipInfo: null,
+        );
+      }
+    }
+  }
+
+  _clearSetTimeoutTimer() {
+    if (_setTimeoutTimer != null) {
+      _setTimeoutTimer?.cancel();
+      _setTimeoutTimer = null;
+    }
+  }
+}
+
+final detectionState = DetectionState();

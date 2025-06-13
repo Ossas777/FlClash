@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'generated/common.freezed.dart';
-
 part 'generated/common.g.dart';
 
 @freezed
@@ -17,7 +16,7 @@ class NavigationItem with _$NavigationItem {
     required Icon icon,
     required PageLabel label,
     final String? description,
-    required Widget fragment,
+    required Widget view,
     @Default(true) bool keep,
     String? path,
     @Default([NavigationItemMode.mobile, NavigationItemMode.desktop])
@@ -30,7 +29,8 @@ class Package with _$Package {
   const factory Package({
     required String packageName,
     required String label,
-    required bool isSystem,
+    required bool system,
+    required bool internet,
     required int lastUpdateTime,
   }) = _Package;
 
@@ -84,33 +84,33 @@ extension ConnectionExt on Connection {
   }
 }
 
-@JsonSerializable()
-class Log {
-  @JsonKey(name: "LogLevel")
-  LogLevel logLevel;
-  @JsonKey(name: "Payload")
-  String? payload;
-  DateTime _dateTime;
+String _logDateTime(_) {
+  return DateTime.now().toString();
+}
 
-  Log({
-    required this.logLevel,
-    this.payload,
-  }) : _dateTime = DateTime.now();
+// String _logId(_) {
+//   return utils.id;
+// }
 
-  DateTime get dateTime => _dateTime;
+@freezed
+class Log with _$Log {
+  const factory Log({
+    @JsonKey(name: "LogLevel") @Default(LogLevel.app) LogLevel logLevel,
+    @JsonKey(name: "Payload") @Default("") String payload,
+    @JsonKey(fromJson: _logDateTime) required String dateTime,
+  }) = _Log;
 
-  factory Log.fromJson(Map<String, dynamic> json) {
-    return _$LogFromJson(json);
+  factory Log.app(
+    String payload,
+  ) {
+    return Log(
+      payload: payload,
+      dateTime: _logDateTime(null),
+      // id: _logId(null),
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    return _$LogToJson(this);
-  }
-
-  @override
-  String toString() {
-    return 'Log{logLevel: $logLevel, payload: $payload, dateTime: $dateTime}';
-  }
+  factory Log.fromJson(Map<String, Object?> json) => _$LogFromJson(json);
 }
 
 @freezed
@@ -119,6 +119,7 @@ class LogsState with _$LogsState {
     @Default([]) List<Log> logs,
     @Default([]) List<String> keywords,
     @Default("") String query,
+    @Default(false) bool loading,
   }) = _LogsState;
 }
 
@@ -127,10 +128,9 @@ extension LogsStateExt on LogsState {
     final lowQuery = query.toLowerCase();
     return logs.where(
       (log) {
-        final payload = log.payload?.toLowerCase();
         final logLevelName = log.logLevel.name;
         return {logLevelName}.containsAll(keywords) &&
-            ((payload?.contains(lowQuery) ?? false) ||
+            ((log.payload.toLowerCase().contains(lowQuery)) ||
                 logLevelName.contains(lowQuery));
       },
     ).toList();
@@ -143,6 +143,7 @@ class ConnectionsState with _$ConnectionsState {
     @Default([]) List<Connection> connections,
     @Default([]) List<String> keywords,
     @Default("") String query,
+    @Default(false) bool loading,
   }) = _ConnectionsState;
 }
 
@@ -369,21 +370,32 @@ class ColorSchemes with _$ColorSchemes {
 }
 
 extension ColorSchemesExt on ColorSchemes {
-  ColorScheme getColorSchemeForBrightness(Brightness? brightness) {
+  ColorScheme getColorSchemeForBrightness(
+    Brightness brightness,
+    DynamicSchemeVariant schemeVariant,
+  ) {
     if (brightness == Brightness.dark) {
       return darkColorScheme != null
           ? ColorScheme.fromSeed(
               seedColor: darkColorScheme!.primary,
               brightness: Brightness.dark,
+              dynamicSchemeVariant: schemeVariant,
             )
           : ColorScheme.fromSeed(
-              seedColor: defaultPrimaryColor,
+              seedColor: Color(defaultPrimaryColor),
               brightness: Brightness.dark,
+              dynamicSchemeVariant: schemeVariant,
             );
     }
     return lightColorScheme != null
-        ? ColorScheme.fromSeed(seedColor: lightColorScheme!.primary)
-        : ColorScheme.fromSeed(seedColor: defaultPrimaryColor);
+        ? ColorScheme.fromSeed(
+            seedColor: lightColorScheme!.primary,
+            dynamicSchemeVariant: schemeVariant,
+          )
+        : ColorScheme.fromSeed(
+            seedColor: Color(defaultPrimaryColor),
+            dynamicSchemeVariant: schemeVariant,
+          );
   }
 }
 
@@ -481,23 +493,86 @@ class Field with _$Field {
   }) = _Field;
 }
 
-enum ActionType {
+enum PopupMenuItemType {
   primary,
   danger,
 }
 
-class ActionItemData {
-  const ActionItemData({
+class PopupMenuItemData {
+  const PopupMenuItemData({
     this.icon,
     required this.label,
     required this.onPressed,
-    this.type,
-    this.iconSize,
   });
 
-  final double? iconSize;
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData? icon;
-  final ActionType? type;
+}
+
+@freezed
+class TextPainterParams with _$TextPainterParams {
+  const factory TextPainterParams({
+    required String? text,
+    required double? fontSize,
+    required double textScaleFactor,
+    @Default(double.infinity) double maxWidth,
+    int? maxLines,
+  }) = _TextPainterParams;
+
+  factory TextPainterParams.fromJson(Map<String, Object?> json) =>
+      _$TextPainterParamsFromJson(json);
+}
+
+class CloseWindowIntent extends Intent {
+  const CloseWindowIntent();
+}
+
+@freezed
+class Result<T> with _$Result<T> {
+  const factory Result({
+    required T? data,
+    required ResultType type,
+    required String message,
+  }) = _Result;
+
+  factory Result.success(T data) => Result(
+        data: data,
+        type: ResultType.success,
+        message: "",
+      );
+
+  factory Result.error(String message) => Result(
+        data: null,
+        type: ResultType.error,
+        message: message,
+      );
+}
+
+extension ResultExt on Result {
+  bool get isError => type == ResultType.error;
+
+  bool get isSuccess => type == ResultType.success;
+}
+
+@freezed
+class Script with _$Script {
+  const factory Script({
+    required String id,
+    required String label,
+    required String content,
+  }) = _Script;
+
+  factory Script.create({
+    required String label,
+    required String content,
+  }) {
+    return Script(
+      id: utils.uuidV4,
+      label: label,
+      content: content,
+    );
+  }
+
+  factory Script.fromJson(Map<String, Object?> json) => _$ScriptFromJson(json);
 }

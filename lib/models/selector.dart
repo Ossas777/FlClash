@@ -15,6 +15,35 @@ class VM2<A, B> with _$VM2<A, B> {
   }) = _VM2;
 }
 
+@freezed
+class VM3<A, B, C> with _$VM3<A, B, C> {
+  const factory VM3({
+    required A a,
+    required B b,
+    required C c,
+  }) = _VM3;
+}
+
+@freezed
+class VM4<A, B, C, D> with _$VM4<A, B, C, D> {
+  const factory VM4({
+    required A a,
+    required B b,
+    required C c,
+    required D d,
+  }) = _VM4;
+}
+
+@freezed
+class VM5<A, B, C, D, E> with _$VM5<A, B, C, D, E> {
+  const factory VM5({
+    required A a,
+    required B b,
+    required C c,
+    required D d,
+    required E e,
+  }) = _VM5;
+}
 
 @freezed
 class StartButtonSelectorState with _$StartButtonSelectorState {
@@ -36,6 +65,7 @@ class ProfilesSelectorState with _$ProfilesSelectorState {
 @freezed
 class NetworkDetectionState with _$NetworkDetectionState {
   const factory NetworkDetectionState({
+    required bool isLoading,
     required bool isTesting,
     required IpInfo? ipInfo,
   }) = _NetworkDetectionState;
@@ -105,6 +135,7 @@ class ProxiesListSelectorState with _$ProxiesListSelectorState {
     required ProxyCardType proxyCardType,
     required num sortNum,
     required int columns,
+    required String query,
   }) = _ProxiesListSelectorState;
 }
 
@@ -137,25 +168,33 @@ class PackageListSelectorState with _$PackageListSelectorState {
 }
 
 extension PackageListSelectorStateExt on PackageListSelectorState {
-  List<Package> getList(List<String> selectedList) {
+  List<Package> get list {
     final isFilterSystemApp = accessControl.isFilterSystemApp;
-    final sort = accessControl.sort;
+    final isFilterNonInternetApp = accessControl.isFilterNonInternetApp;
     return packages
-        .where((item) => isFilterSystemApp ? item.isSystem == false : true)
-        .sorted(
-          (a, b) {
+        .where(
+          (item) =>
+              (isFilterSystemApp ? item.system == false : true) &&
+              (isFilterNonInternetApp ? item.internet == true : true),
+        )
+        .toList();
+  }
+
+  List<Package> getSortList(List<String> selectedList) {
+    final sort = accessControl.sort;
+    return list.sorted(
+      (a, b) {
         return switch (sort) {
           AccessSortType.none => 0,
-          AccessSortType.name =>
-              other.sortByChar(
-                other.getPinyin(a.label),
-                other.getPinyin(b.label),
-              ),
+          AccessSortType.name => utils.sortByChar(
+              utils.getPinyin(a.label),
+              utils.getPinyin(b.label),
+            ),
           AccessSortType.time => b.lastUpdateTime.compareTo(a.lastUpdateTime),
         };
       },
     ).sorted(
-          (a, b) {
+      (a, b) {
         final isSelectA = selectedList.contains(a.packageName);
         final isSelectB = selectedList.contains(b.packageName);
         if (isSelectA && isSelectB) return 0;
@@ -199,6 +238,8 @@ class ClashConfigState with _$ClashConfigState {
   const factory ClashConfigState({
     required bool overrideDns,
     required ClashConfig clashConfig,
+    required OverrideData overrideData,
+    required RouteMode routeMode,
   }) = _ClashConfigState;
 }
 
@@ -224,4 +265,13 @@ class VpnState with _$VpnState {
     required TunStack stack,
     required VpnProps vpnProps,
   }) = _VpnState;
+}
+
+@freezed
+class ProfileOverrideStateModel with _$ProfileOverrideStateModel {
+  const factory ProfileOverrideStateModel({
+    ClashConfigSnippet? snippet,
+    required Set<String> selectedRules,
+    OverrideData? overrideData,
+  }) = _ProfileOverrideStateModel;
 }

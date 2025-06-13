@@ -22,19 +22,19 @@ class Render {
   }
 
   pause() {
-    debouncer.call(
-      DebounceTag.renderPause,
+    throttler.call(
+      FunctionTag.renderPause,
       _pause,
       duration: Duration(seconds: 5),
     );
   }
 
   resume() {
-    debouncer.cancel(DebounceTag.renderPause);
+    throttler.cancel(FunctionTag.renderPause);
     _resume();
   }
 
-  void _pause() {
+  void _pause() async {
     if (_isPaused) return;
     _isPaused = true;
     _beginFrame = _dispatcher.onBeginFrame;
@@ -54,4 +54,4 @@ class Render {
   }
 }
 
-final render = system.isDesktop ? Render() : null;
+final Render? render = system.isDesktop ? Render() : null;

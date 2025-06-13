@@ -8,6 +8,7 @@ import 'package:fl_clash/clash/interface.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/state.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 
@@ -65,8 +66,18 @@ class ClashCore {
 
   Future<bool> init() async {
     await initGeo();
+    if (globalState.config.appSetting.openLogs) {
+      clashCore.startLog();
+    } else {
+      clashCore.stopLog();
+    }
     final homeDirPath = await appPath.homeDirPath;
-    return await clashInterface.init(homeDirPath);
+    return await clashInterface.init(
+      InitParams(
+        homeDir: homeDirPath,
+        version: globalState.appState.version,
+      ),
+    );
   }
 
   Future<bool> setState(CoreState state) async {
@@ -83,39 +94,39 @@ class ClashCore {
     return clashInterface.validateConfig(data);
   }
 
-  Future<String> updateConfig(UpdateConfigParams updateConfigParams) async {
-    return await clashInterface.updateConfig(updateConfigParams);
+  Future<String> updateConfig(UpdateParams updateParams) async {
+    return await clashInterface.updateConfig(updateParams);
+  }
+
+  Future<String> setupConfig(SetupParams setupParams) async {
+    return await clashInterface.setupConfig(setupParams);
   }
 
   Future<List<Group>> getProxiesGroups() async {
-    final proxiesRawString = await clashInterface.getProxies();
-    return Isolate.run<List<Group>>(() {
-      if (proxiesRawString.isEmpty) return [];
-      final proxies = (json.decode(proxiesRawString) ?? {}) as Map;
-      if (proxies.isEmpty) return [];
-      final groupNames = [
-        UsedProxy.GLOBAL.name,
-        ...(proxies[UsedProxy.GLOBAL.name]["all"] as List).where((e) {
-          final proxy = proxies[e] ?? {};
-          return GroupTypeExtension.valueList.contains(proxy['type']);
-        })
-      ];
-      final groupsRaw = groupNames.map((groupName) {
-        final group = proxies[groupName];
-        group["all"] = ((group["all"] ?? []) as List)
-            .map(
-              (name) => proxies[name],
-            )
-            .where((proxy) => proxy != null)
-            .toList();
-        return group;
-      }).toList();
-      return groupsRaw
+    final proxies = await clashInterface.getProxies();
+    if (proxies.isEmpty) return [];
+    final groupNames = [
+      UsedProxy.GLOBAL.name,
+      ...(proxies[UsedProxy.GLOBAL.name]["all"] as List).where((e) {
+        final proxy = proxies[e] ?? {};
+        return GroupTypeExtension.valueList.contains(proxy['type']);
+      })
+    ];
+    final groupsRaw = groupNames.map((groupName) {
+      final group = proxies[groupName];
+      group["all"] = ((group["all"] ?? []) as List)
           .map(
-            (e) => Group.fromJson(e),
+            (name) => proxies[name],
           )
+          .where((proxy) => proxy != null)
           .toList();
-    });
+      return group;
+    }).toList();
+    return groupsRaw
+        .map(
+          (e) => Group.fromJson(e),
+        )
+        .toList();
   }
 
   FutureOr<String> changeProxy(ChangeProxyParams changeProxyParams) async {
@@ -135,6 +146,10 @@ class ClashCore {
 
   closeConnections() {
     clashInterface.closeConnections();
+  }
+
+  resetConnections() {
+    clashInterface.resetConnections();
   }
 
   Future<List<ExternalProvider>> getExternalProviders() async {
@@ -200,6 +215,16 @@ class ClashCore {
     return Delay.fromJson(json.decode(data));
   }
 
+  Future<Map<String, dynamic>> getConfig(String id) async {
+    final profilePath = await appPath.getProfilePath(id);
+    final res = await clashInterface.getConfig(profilePath);
+    if (res.isSuccess) {
+      return res.data as Map<String, dynamic>;
+    } else {
+      throw res.message;
+    }
+  }
+
   Future<Traffic> getTraffic() async {
     final trafficString = await clashInterface.getTraffic();
     if (trafficString.isEmpty) {
@@ -233,14 +258,6 @@ class ClashCore {
       return 0;
     }
     return int.parse(value);
-  }
-
-  Future<ClashConfigSnippet?> getProfile(String id) async {
-    final res = await clashInterface.getProfile(id);
-    if (res.isEmpty) {
-      return null;
-    }
-    return ClashConfigSnippet.fromJson(json.decode(res));
   }
 
   resetTraffic() {

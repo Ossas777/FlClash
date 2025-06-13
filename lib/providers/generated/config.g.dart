@@ -83,7 +83,7 @@ final themeSettingProvider =
 );
 
 typedef _$ThemeSetting = AutoDisposeNotifier<ThemeProps>;
-String _$profilesHash() => r'c2bc502d31321274a44901b675fbbab60b4519c3';
+String _$profilesHash() => r'a6514c89064e4f42fc31fe7d525088fd26c51016';
 
 /// See also [Profiles].
 @ProviderFor(Profiles)
@@ -178,6 +178,21 @@ final proxiesStyleSettingProvider =
 );
 
 typedef _$ProxiesStyleSetting = AutoDisposeNotifier<ProxiesStyle>;
+String _$scriptStateHash() => r'884581c71fd5afa3c9d34f31625d967cf561cdbe';
+
+/// See also [ScriptState].
+@ProviderFor(ScriptState)
+final scriptStateProvider =
+    AutoDisposeNotifierProvider<ScriptState, ScriptProps>.internal(
+  ScriptState.new,
+  name: r'scriptStateProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$scriptStateHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ScriptState = AutoDisposeNotifier<ScriptProps>;
 String _$patchClashConfigHash() => r'52906195d85525d6688aec231da8b38c24364494';
 
 /// See also [PatchClashConfig].

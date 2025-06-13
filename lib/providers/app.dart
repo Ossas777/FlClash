@@ -3,9 +3,25 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'generated/app.g.dart';
+
+@riverpod
+class RealTunEnable extends _$RealTunEnable with AutoDisposeNotifierMixin {
+  @override
+  bool build() {
+    return globalState.appState.realTunEnable;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.appState = globalState.appState.copyWith(
+      realTunEnable: value,
+    );
+  }
+}
 
 @riverpod
 class Logs extends _$Logs with AutoDisposeNotifierMixin {
@@ -182,22 +198,42 @@ class RunTime extends _$RunTime with AutoDisposeNotifierMixin {
 }
 
 @riverpod
-class ViewWidth extends _$ViewWidth with AutoDisposeNotifierMixin {
+class ViewSize extends _$ViewSize with AutoDisposeNotifierMixin {
   @override
-  double build() {
-    return globalState.appState.viewWidth;
+  Size build() {
+    return globalState.appState.viewSize;
   }
 
   @override
   onUpdate(value) {
     globalState.appState = globalState.appState.copyWith(
-      viewWidth: value,
+      viewSize: value,
     );
   }
 
-  ViewMode get viewMode => other.getViewMode(state);
+  ViewMode get viewMode => utils.getViewMode(state.width);
 
   bool get isMobileView => viewMode == ViewMode.mobile;
+}
+
+@riverpod
+double viewWidth(Ref ref) {
+  return ref.watch(viewSizeProvider).width;
+}
+
+@riverpod
+ViewMode viewMode(Ref ref) {
+  return utils.getViewMode(ref.watch(viewWidthProvider));
+}
+
+@riverpod
+bool isMobileView(Ref ref) {
+  return ref.watch(viewModeProvider) == ViewMode.mobile;
+}
+
+@riverpod
+double viewHeight(Ref ref) {
+  return ref.watch(viewSizeProvider).height;
 }
 
 @riverpod
@@ -227,21 +263,6 @@ class CurrentPageLabel extends _$CurrentPageLabel
   onUpdate(value) {
     globalState.appState = globalState.appState.copyWith(
       pageLabel: value,
-    );
-  }
-}
-
-@riverpod
-class AppSchemes extends _$AppSchemes with AutoDisposeNotifierMixin {
-  @override
-  ColorSchemes build() {
-    return globalState.appState.colorSchemes;
-  }
-
-  @override
-  onUpdate(value) {
-    globalState.appState = globalState.appState.copyWith(
-      colorSchemes: value,
     );
   }
 }
@@ -278,6 +299,21 @@ class CheckIpNum extends _$CheckIpNum with AutoDisposeNotifierMixin {
   }
 
   add() => state++;
+}
+
+@riverpod
+class BackBlock extends _$BackBlock with AutoDisposeNotifierMixin {
+  @override
+  bool build() {
+    return globalState.appState.backBlock;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.appState = globalState.appState.copyWith(
+      backBlock: value,
+    );
+  }
 }
 
 @riverpod
@@ -333,5 +369,20 @@ class DelayDataSource extends _$DelayDataSource with AutoDisposeNotifierMixin {
       newDelayMap[delay.url]![delay.name] = delay.value;
       state = newDelayMap;
     }
+  }
+}
+
+@riverpod
+class ProxiesQuery extends _$ProxiesQuery with AutoDisposeNotifierMixin {
+  @override
+  String build() {
+    return globalState.appState.proxiesQuery;
+  }
+
+  @override
+  onUpdate(value) {
+    globalState.appState = globalState.appState.copyWith(
+      proxiesQuery: value,
+    );
   }
 }

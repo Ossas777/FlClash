@@ -32,7 +32,7 @@ class _ClashContainerState extends ConsumerState<ClashManager>
   void initState() {
     super.initState();
     clashMessage.addListener(this);
-    ref.listenManual(currentProfileIdProvider, (prev, next) {
+    ref.listenManual(needSetupProvider, (prev, next) {
       if (prev != next) {
         globalState.appController.handleChangeProfile();
       }
@@ -42,11 +42,22 @@ class _ClashContainerState extends ConsumerState<ClashManager>
         await clashCore.setState(next);
       }
     });
-    ref.listenManual(clashConfigStateProvider, (prev, next) {
+    ref.listenManual(updateParamsProvider, (prev, next) {
       if (prev != next) {
         globalState.appController.updateClashConfigDebounce();
       }
     });
+
+    ref.listenManual(
+      appSettingProvider.select((state) => state.openLogs),
+      (prev, next) {
+        if (next) {
+          clashCore.startLog();
+        } else {
+          clashCore.stopLog();
+        }
+      },
+    );
   }
 
   @override
@@ -61,7 +72,7 @@ class _ClashContainerState extends ConsumerState<ClashManager>
     final appController = globalState.appController;
     appController.setDelay(delay);
     debouncer.call(
-      DebounceTag.updateDelay,
+      FunctionTag.updateDelay,
       () async {
         await appController.updateGroupsDebounce();
       },
@@ -71,22 +82,22 @@ class _ClashContainerState extends ConsumerState<ClashManager>
 
   @override
   void onLog(Log log) {
-    ref.watch(logsProvider.notifier).addLog(log);
+    ref.read(logsProvider.notifier).addLog(log);
     if (log.logLevel == LogLevel.error) {
-      globalState.showNotifier(log.payload ?? '');
+      globalState.showNotifier(log.payload);
     }
     super.onLog(log);
   }
 
   @override
   void onRequest(Connection connection) async {
-    ref.watch(requestsProvider.notifier).addRequest(connection);
+    ref.read(requestsProvider.notifier).addRequest(connection);
     super.onRequest(connection);
   }
 
   @override
   Future<void> onLoaded(String providerName) async {
-    ref.watch(providersProvider.notifier).setProvider(
+    ref.read(providersProvider.notifier).setProvider(
           await clashCore.getExternalProvider(
             providerName,
           ),

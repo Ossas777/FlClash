@@ -3,15 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Measure {
-  final TextScaler _textScale;
+  final TextScaler _textScaler;
   final BuildContext context;
-  final String? _fontFamily;
+  final Map<String, dynamic> _measureMap;
 
-  Measure.of(this.context, {String? fontFamily})
-      : _textScale = TextScaler.linear(
-          WidgetsBinding.instance.platformDispatcher.textScaleFactor,
-        ),
-        _fontFamily = fontFamily ?? "";
+  Measure.of(this.context, double textScaleFactor)
+      : _measureMap = {},
+        _textScaler = TextScaler.linear(
+          textScaleFactor,
+        );
 
   Size computeTextSize(
     Text text, {
@@ -20,12 +20,10 @@ class Measure {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text.data,
-        style: text.style?.copyWith(
-          fontFamily: _fontFamily,
-        ),
+        style: text.style,
       ),
       maxLines: text.maxLines,
-      textScaler: _textScale,
+      textScaler: _textScaler,
       textDirection: text.textDirection ?? TextDirection.ltr,
     )..layout(
         maxWidth: maxWidth,
@@ -33,81 +31,87 @@ class Measure {
     return textPainter.size;
   }
 
-  double? _bodyMediumHeight;
-  Size? _bodyLargeSize;
-  double? _bodySmallHeight;
-  double? _labelSmallHeight;
-  double? _labelMediumHeight;
-  double? _titleLargeHeight;
-  double? _titleMediumHeight;
-
   double get bodyMediumHeight {
-    _bodyMediumHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.bodyMedium,
-      ),
-    ).height;
-    return _bodyMediumHeight!;
+    return _measureMap.updateCacheValue(
+      "bodyMediumHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.bodyMedium,
+        ),
+      ).height,
+    );
   }
 
-  Size get bodyLargeSize {
-    _bodyLargeSize ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.bodyLarge,
-      ),
+  double get bodyLargeHeight {
+    return _measureMap.updateCacheValue(
+      "bodyLargeHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.bodyLarge,
+        ),
+      ).height,
     );
-    return _bodyLargeSize!;
   }
 
   double get bodySmallHeight {
-    _bodySmallHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.bodySmall,
-      ),
-    ).height;
-    return _bodySmallHeight!;
+    return _measureMap.updateCacheValue(
+      "bodySmallHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.bodySmall,
+        ),
+      ).height,
+    );
   }
 
   double get labelSmallHeight {
-    _labelSmallHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.labelSmall,
-      ),
-    ).height;
-    return _labelSmallHeight!;
+    return _measureMap.updateCacheValue(
+      "labelSmallHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.labelSmall,
+        ),
+      ).height,
+    );
   }
 
   double get labelMediumHeight {
-    _labelMediumHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.labelMedium,
-      ),
-    ).height;
-    return _labelMediumHeight!;
+    return _measureMap.updateCacheValue(
+      "labelMediumHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.labelMedium,
+        ),
+      ).height,
+    );
   }
 
   double get titleLargeHeight {
-    _titleLargeHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.titleLarge,
-      ),
-    ).height;
-    return _titleLargeHeight!;
+    return _measureMap.updateCacheValue(
+      "titleLargeHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.titleLarge,
+        ),
+      ).height,
+    );
   }
 
   double get titleMediumHeight {
-    _titleMediumHeight ??= computeTextSize(
-      Text(
-        "X",
-        style: context.textTheme.titleMedium,
-      ),
-    ).height;
-    return _titleMediumHeight!;
+    return _measureMap.updateCacheValue(
+      "titleMediumHeight",
+      () => computeTextSize(
+        Text(
+          "X",
+          style: context.textTheme.titleMedium,
+        ),
+      ).height,
+    );
   }
 }

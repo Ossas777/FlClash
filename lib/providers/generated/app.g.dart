@@ -6,6 +6,86 @@ part of '../app.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$viewWidthHash() => r'a469c3414170a6616ff3264962e7f160b2edceca';
+
+/// See also [viewWidth].
+@ProviderFor(viewWidth)
+final viewWidthProvider = AutoDisposeProvider<double>.internal(
+  viewWidth,
+  name: r'viewWidthProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$viewWidthHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ViewWidthRef = AutoDisposeProviderRef<double>;
+String _$viewModeHash() => r'736e2acc7e7d98ee30132de1990bf85f9506b47a';
+
+/// See also [viewMode].
+@ProviderFor(viewMode)
+final viewModeProvider = AutoDisposeProvider<ViewMode>.internal(
+  viewMode,
+  name: r'viewModeProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$viewModeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ViewModeRef = AutoDisposeProviderRef<ViewMode>;
+String _$isMobileViewHash() => r'554c9ed269a02af001e623e596622e2bb2d658e7';
+
+/// See also [isMobileView].
+@ProviderFor(isMobileView)
+final isMobileViewProvider = AutoDisposeProvider<bool>.internal(
+  isMobileView,
+  name: r'isMobileViewProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$isMobileViewHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef IsMobileViewRef = AutoDisposeProviderRef<bool>;
+String _$viewHeightHash() => r'410aee5b41388226ab16737f0e85a56f7e9fe801';
+
+/// See also [viewHeight].
+@ProviderFor(viewHeight)
+final viewHeightProvider = AutoDisposeProvider<double>.internal(
+  viewHeight,
+  name: r'viewHeightProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$viewHeightHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ViewHeightRef = AutoDisposeProviderRef<double>;
+String _$realTunEnableHash() => r'a4e995c86deca4c8307966470e69d93d64a40df6';
+
+/// See also [RealTunEnable].
+@ProviderFor(RealTunEnable)
+final realTunEnableProvider =
+    AutoDisposeNotifierProvider<RealTunEnable, bool>.internal(
+  RealTunEnable.new,
+  name: r'realTunEnableProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$realTunEnableHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$RealTunEnable = AutoDisposeNotifier<bool>;
 String _$logsHash() => r'56fb8aa9d62a97b026b749d204576a7384084737';
 
 /// See also [Logs].
@@ -139,21 +219,20 @@ final runTimeProvider = AutoDisposeNotifierProvider<RunTime, int?>.internal(
 );
 
 typedef _$RunTime = AutoDisposeNotifier<int?>;
-String _$viewWidthHash() => r'2d492c97b26c9634ee945a8d7da1563d98b830bd';
+String _$viewSizeHash() => r'07f9cce28a69d1496ba4643ef72a739312f6fc28';
 
-/// See also [ViewWidth].
-@ProviderFor(ViewWidth)
-final viewWidthProvider =
-    AutoDisposeNotifierProvider<ViewWidth, double>.internal(
-  ViewWidth.new,
-  name: r'viewWidthProvider',
+/// See also [ViewSize].
+@ProviderFor(ViewSize)
+final viewSizeProvider = AutoDisposeNotifierProvider<ViewSize, Size>.internal(
+  ViewSize.new,
+  name: r'viewSizeProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$viewWidthHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$viewSizeHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$ViewWidth = AutoDisposeNotifier<double>;
+typedef _$ViewSize = AutoDisposeNotifier<Size>;
 String _$initHash() => r'7d3f11c8aff7a1924c5ec8886b2cd2cbdda57c3f';
 
 /// See also [Init].
@@ -184,21 +263,6 @@ final currentPageLabelProvider =
 );
 
 typedef _$CurrentPageLabel = AutoDisposeNotifier<PageLabel>;
-String _$appSchemesHash() => r'748f48f23539a879a92f318a21e1266b1df56aae';
-
-/// See also [AppSchemes].
-@ProviderFor(AppSchemes)
-final appSchemesProvider =
-    AutoDisposeNotifierProvider<AppSchemes, ColorSchemes>.internal(
-  AppSchemes.new,
-  name: r'appSchemesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$appSchemesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$AppSchemes = AutoDisposeNotifier<ColorSchemes>;
 String _$sortNumHash() => r'0f85ebbc77124020eaccf988c6ac9d86a7f34d7e';
 
 /// See also [SortNum].
@@ -228,6 +292,20 @@ final checkIpNumProvider =
 );
 
 typedef _$CheckIpNum = AutoDisposeNotifier<int>;
+String _$backBlockHash() => r'c0223e0776b72d3a8c8842fc32fdb5287353999f';
+
+/// See also [BackBlock].
+@ProviderFor(BackBlock)
+final backBlockProvider = AutoDisposeNotifierProvider<BackBlock, bool>.internal(
+  BackBlock.new,
+  name: r'backBlockProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$backBlockHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$BackBlock = AutoDisposeNotifier<bool>;
 String _$versionHash() => r'8c0ee019d20df3f112c38ae4dc4abd61148d3809';
 
 /// See also [Version].
@@ -273,5 +351,20 @@ final delayDataSourceProvider =
 );
 
 typedef _$DelayDataSource = AutoDisposeNotifier<DelayMap>;
+String _$proxiesQueryHash() => r'9f3907e06534b6882684bec47ca3ba2988297e19';
+
+/// See also [ProxiesQuery].
+@ProviderFor(ProxiesQuery)
+final proxiesQueryProvider =
+    AutoDisposeNotifierProvider<ProxiesQuery, String>.internal(
+  ProxiesQuery.new,
+  name: r'proxiesQueryProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$proxiesQueryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$ProxiesQuery = AutoDisposeNotifier<String>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

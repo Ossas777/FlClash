@@ -4,6 +4,7 @@ package main
 
 import "C"
 import (
+	"context"
 	bridge "core/dart-bridge"
 	"core/platform"
 	"core/state"
@@ -11,118 +12,111 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/metacubex/mihomo/common/utils"
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
 	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/listener/sing_tun"
 	"github.com/metacubex/mihomo/log"
+	"golang.org/x/sync/semaphore"
+	"net"
 	"strconv"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
+	"unsafe"
 )
 
-type Fd struct {
-	Id    string `json:"id"`
-	Value int64  `json:"value"`
+type TunHandler struct {
+	listener *sing_tun.Listener
+	callback unsafe.Pointer
+
+	limit *semaphore.Weighted
 }
 
-type Process struct {
-	Id       string             `json:"id"`
-	Metadata *constant.Metadata `json:"metadata"`
-}
-
-type ProcessMapItem struct {
-	Id    string `json:"id"`
-	Value string `json:"value"`
-}
-
-type InvokeManager struct {
-	invokeMap sync.Map
-	chanMap   map[string]chan struct{}
-	chanLock  sync.Mutex
-}
-
-func NewInvokeManager() *InvokeManager {
-	return &InvokeManager{
-		chanMap: make(map[string]chan struct{}),
+func (t *TunHandler) close() {
+	_ = t.limit.Acquire(context.TODO(), 4)
+	defer t.limit.Release(4)
+	removeTunHook()
+	if t.listener != nil {
+		_ = t.listener.Close()
 	}
+
+	if t.callback != nil {
+		releaseObject(t.callback)
+	}
+	t.callback = nil
+	t.listener = nil
 }
 
-func (m *InvokeManager) completer(id string, value string) {
-	m.invokeMap.Store(id, value)
-	m.chanLock.Lock()
-	if ch, ok := m.chanMap[id]; ok {
-		close(ch)
-		delete(m.chanMap, id)
+func (t *TunHandler) handleProtect(fd int) {
+	_ = t.limit.Acquire(context.Background(), 1)
+	defer t.limit.Release(1)
+
+	if t.listener == nil {
+		return
 	}
-	m.chanLock.Unlock()
+
+	Protect(t.callback, fd)
 }
 
-func (m *InvokeManager) await(id string) string {
-	m.chanLock.Lock()
-	if _, ok := m.chanMap[id]; !ok {
-		m.chanMap[id] = make(chan struct{})
-	}
-	ch := m.chanMap[id]
-	m.chanLock.Unlock()
+func (t *TunHandler) handleResolveProcess(source, target net.Addr) string {
+	_ = t.limit.Acquire(context.Background(), 1)
+	defer t.limit.Release(1)
 
-	timeout := time.After(500 * time.Millisecond)
-	select {
-	case <-ch:
-		res, ok := m.invokeMap.Load(id)
-		m.invokeMap.Delete(id)
-		if ok {
-			return res.(string)
-		} else {
-			return ""
-		}
-	case <-timeout:
-		m.completer(id, "")
+	if t.listener == nil {
 		return ""
 	}
+	var protocol int
+	uid := -1
+	switch source.Network() {
+	case "udp", "udp4", "udp6":
+		protocol = syscall.IPPROTO_UDP
+	case "tcp", "tcp4", "tcp6":
+		protocol = syscall.IPPROTO_TCP
+	}
+	if version < 29 {
+		uid = platform.QuerySocketUidFromProcFs(source, target)
+	}
+	return ResolveProcess(t.callback, protocol, source.String(), target.String(), uid)
 }
 
 var (
-	invokePort       int64 = -1
-	tunListener      *sing_tun.Listener
-	fdInvokeMap      = NewInvokeManager()
-	processInvokeMap = NewInvokeManager()
-	tunLock          sync.Mutex
-	runTime          *time.Time
-	errBlocked       = errors.New("blocked")
+	tunLock    sync.Mutex
+	runTime    *time.Time
+	errBlocked = errors.New("blocked")
+	tunHandler *TunHandler
 )
-
-func handleStartTun(fd int) string {
-	handleStopTun()
-	tunLock.Lock()
-	defer tunLock.Unlock()
-	if fd == 0 {
-		now := time.Now()
-		runTime = &now
-	} else {
-		initSocketHook()
-		tunListener, _ = t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack)
-		if tunListener != nil {
-			log.Infoln("TUN address: %v", tunListener.Address())
-		}
-		now := time.Now()
-		runTime = &now
-	}
-	return handleGetRunTime()
-}
 
 func handleStopTun() {
 	tunLock.Lock()
 	defer tunLock.Unlock()
-	removeSocketHook()
 	runTime = nil
-	if tunListener != nil {
-		log.Infoln("TUN close")
-		_ = tunListener.Close()
+	if tunHandler != nil {
+		tunHandler.close()
+	}
+}
+
+func handleStartTun(fd int, callback unsafe.Pointer) {
+	handleStopTun()
+	tunLock.Lock()
+	defer tunLock.Unlock()
+	now := time.Now()
+	runTime = &now
+	if fd != 0 {
+		tunHandler = &TunHandler{
+			callback: callback,
+			limit:    semaphore.NewWeighted(4),
+		}
+		initTunHook()
+		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack)
+		if tunListener != nil {
+			log.Infoln("TUN address: %v", tunListener.Address())
+			tunHandler.listener = tunListener
+		} else {
+			removeTunHook()
+		}
 	}
 }
 
@@ -133,81 +127,27 @@ func handleGetRunTime() string {
 	return strconv.FormatInt(runTime.UnixMilli(), 10)
 }
 
-func handleSetProcessMap(params string) {
-	var processMapItem = &ProcessMapItem{}
-	err := json.Unmarshal([]byte(params), processMapItem)
-	if err == nil {
-		processInvokeMap.completer(processMapItem.Id, processMapItem.Value)
-	}
-}
-
-//export attachInvokePort
-func attachInvokePort(mPort C.longlong) {
-	invokePort = int64(mPort)
-}
-
-func sendInvokeMessage(message InvokeMessage) {
-	if invokePort == -1 {
-		return
-	}
-	bridge.SendToPort(invokePort, message.Json())
-}
-
-func handleMarkSocket(fd Fd) {
-	sendInvokeMessage(InvokeMessage{
-		Type: ProtectInvoke,
-		Data: fd,
-	})
-}
-
-func handleParseProcess(process Process) {
-	sendInvokeMessage(InvokeMessage{
-		Type: ProcessInvoke,
-		Data: process,
-	})
-}
-
-func handleSetFdMap(id string) {
-	go func() {
-		fdInvokeMap.completer(id, "")
-	}()
-}
-
-func initSocketHook() {
+func initTunHook() {
 	dialer.DefaultSocketHook = func(network, address string, conn syscall.RawConn) error {
 		if platform.ShouldBlockConnection() {
 			return errBlocked
 		}
 		return conn.Control(func(fd uintptr) {
-			fdInt := int64(fd)
-			id := utils.NewUUIDV1().String()
-
-			handleMarkSocket(Fd{
-				Id:    id,
-				Value: fdInt,
-			})
-
-			fdInvokeMap.await(id)
+			tunHandler.handleProtect(int(fd))
 		})
 	}
-}
-
-func removeSocketHook() {
-	dialer.DefaultSocketHook = nil
-}
-
-func init() {
 	process.DefaultPackageNameResolver = func(metadata *constant.Metadata) (string, error) {
-		if metadata == nil {
+		src, dst := metadata.RawSrcAddr, metadata.RawDstAddr
+		if src == nil || dst == nil {
 			return "", process.ErrInvalidNetwork
 		}
-		id := utils.NewUUIDV1().String()
-		handleParseProcess(Process{
-			Id:       id,
-			Metadata: metadata,
-		})
-		return processInvokeMap.await(id), nil
+		return tunHandler.handleResolveProcess(src, dst), nil
 	}
+}
+
+func removeTunHook() {
+	dialer.DefaultSocketHook = nil
+	process.DefaultPackageNameResolver = nil
 }
 
 func handleGetAndroidVpnOptions() string {
@@ -248,66 +188,48 @@ func handleGetCurrentProfileName() string {
 	return state.CurrentState.CurrentProfileName
 }
 
-func nextHandle(action *Action, result func(data interface{})) bool {
+func nextHandle(action *Action, result ActionResult) bool {
 	switch action.Method {
-	case startTunMethod:
-		data := action.Data.(string)
-		var fd int
-		_ = json.Unmarshal([]byte(data), &fd)
-		result(handleStartTun(fd))
-		return true
-	case stopTunMethod:
-		handleStopTun()
-		result(true)
-		return true
 	case getAndroidVpnOptionsMethod:
-		result(handleGetAndroidVpnOptions())
+		result.success(handleGetAndroidVpnOptions())
 		return true
 	case updateDnsMethod:
 		data := action.Data.(string)
 		handleUpdateDns(data)
-		result(true)
-		return true
-	case setFdMapMethod:
-		fdId := action.Data.(string)
-		handleSetFdMap(fdId)
-		result(true)
-		return true
-	case setProcessMapMethod:
-		data := action.Data.(string)
-		handleSetProcessMap(data)
-		result(true)
+		result.success(true)
 		return true
 	case getRunTimeMethod:
-		result(handleGetRunTime())
+		result.success(handleGetRunTime())
 		return true
 	case getCurrentProfileNameMethod:
-		result(handleGetCurrentProfileName())
+		result.success(handleGetCurrentProfileName())
 		return true
 	}
 	return false
 }
 
 //export quickStart
-func quickStart(dirChar *C.char, paramsChar *C.char, stateParamsChar *C.char, port C.longlong) {
+func quickStart(initParamsChar *C.char, paramsChar *C.char, stateParamsChar *C.char, port C.longlong) {
 	i := int64(port)
-	dir := C.GoString(dirChar)
+	paramsString := C.GoString(initParamsChar)
 	bytes := []byte(C.GoString(paramsChar))
 	stateParams := C.GoString(stateParamsChar)
 	go func() {
-		res := handleInitClash(dir)
+		res := handleInitClash(paramsString)
 		if res == false {
 			bridge.SendToPort(i, "init error")
 		}
 		handleSetState(stateParams)
-		bridge.SendToPort(i, handleUpdateConfig(bytes))
+		bridge.SendToPort(i, handleSetupConfig(bytes))
 	}()
 }
 
 //export startTUN
-func startTUN(fd C.int) *C.char {
-	f := int(fd)
-	return C.CString(handleStartTun(f))
+func startTUN(fd C.int, callback unsafe.Pointer) bool {
+	go func() {
+		handleStartTun(int(fd), callback)
+	}()
+	return true
 }
 
 //export getRunTime
@@ -317,13 +239,9 @@ func getRunTime() *C.char {
 
 //export stopTun
 func stopTun() {
-	handleStopTun()
-}
-
-//export setFdMap
-func setFdMap(fdIdChar *C.char) {
-	fdId := C.GoString(fdIdChar)
-	handleSetFdMap(fdId)
+	go func() {
+		handleStopTun()
+	}()
 }
 
 //export getCurrentProfileName
@@ -346,13 +264,4 @@ func setState(s *C.char) {
 func updateDns(s *C.char) {
 	dnsList := C.GoString(s)
 	handleUpdateDns(dnsList)
-}
-
-//export setProcessMap
-func setProcessMap(s *C.char) {
-	if s == nil {
-		return
-	}
-	paramsString := C.GoString(s)
-	handleSetProcessMap(paramsString)
 }

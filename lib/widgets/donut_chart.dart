@@ -115,11 +115,9 @@ class DonutChartPainter extends CustomPainter {
 
   List<DonutChartData> get interpolatedData {
     if (oldData.length != newData.length) return newData;
-
     final interpolatedData = List.generate(newData.length, (index) {
       final oldValue = oldData[index].value;
       final newValue = newData[index].value;
-
       final logOldValue = _logTransform(oldValue);
       final logNewValue = _logTransform(newValue);
       final interpolatedLogValue =
@@ -139,7 +137,7 @@ class DonutChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    const strokeWidth = 10.0;
+    final strokeWidth = 10.0.ap;
     final radius = min(size.width / 2, size.height / 2) - strokeWidth / 2;
 
     final gapAngle = 2 * asin(strokeWidth * 1 / (2 * radius)) * 1.2;
