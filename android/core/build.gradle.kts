@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.argumentsWithVarargAsSingleArray
-
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
@@ -23,6 +21,7 @@ android {
             )
         }
     }
+
 
     sourceSets {
         getByName("main") {
@@ -56,6 +55,18 @@ val copyNativeLibs by tasks.register<Copy>("copyNativeLibs") {
     }
     from("../../libclash/android")
     into("src/main/jniLibs")
+
+    doLast {
+        val includesDir = file("src/main/jniLibs/includes")
+        val targetDir = file("src/main/cpp/includes")
+        if (includesDir.exists()) {
+            copy {
+                from(includesDir)
+                into(targetDir)
+            }
+            delete(includesDir)
+        }
+    }
 }
 
 afterEvaluate {
