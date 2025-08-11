@@ -55,11 +55,9 @@ import "C"
 import (
 	"context"
 	"core/platform"
-	"core/state"
 	t "core/tun"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
 	"github.com/metacubex/mihomo/constant"
@@ -146,7 +144,7 @@ func handleStopTun() {
 	}
 }
 
-func handleStartTun(fd int, callback unsafe.Pointer) {
+func handleStartTun(callback unsafe.Pointer, fd int, address, dns string) {
 	handleStopTun()
 	tunLock.Lock()
 	defer tunLock.Unlock()
@@ -158,7 +156,7 @@ func handleStartTun(fd int, callback unsafe.Pointer) {
 			limit:    semaphore.NewWeighted(4),
 		}
 		initTunHook()
-		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack)
+		tunListener, _ := t.Start(fd, currentConfig.General.Tun.Device, currentConfig.General.Tun.Stack, address, dns)
 		if tunListener != nil {
 			log.Infoln("TUN address: %v", tunListener.Address())
 			tunHandler.listener = tunListener
@@ -198,42 +196,12 @@ func removeTunHook() {
 	process.DefaultPackageNameResolver = nil
 }
 
-func handleGetAndroidVpnOptions() string {
-	tunLock.Lock()
-	defer tunLock.Unlock()
-	options := state.AndroidVpnOptions{
-		Enable:           state.CurrentState.VpnProps.Enable,
-		Port:             currentConfig.General.MixedPort,
-		Ipv4Address:      state.DefaultIpv4Address,
-		Ipv6Address:      state.GetIpv6Address(),
-		AccessControl:    state.CurrentState.VpnProps.AccessControl,
-		SystemProxy:      state.CurrentState.VpnProps.SystemProxy,
-		AllowBypass:      state.CurrentState.VpnProps.AllowBypass,
-		RouteAddress:     currentConfig.General.Tun.RouteAddress,
-		BypassDomain:     state.CurrentState.BypassDomain,
-		DnsServerAddress: state.GetDnsServerAddress(),
-	}
-	data, err := json.Marshal(options)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return ""
-	}
-	return string(data)
-}
-
 func handleUpdateDns(value string) {
 	go func() {
 		log.Infoln("[DNS] updateDns %s", value)
 		dns.UpdateSystemDNS(strings.Split(value, ","))
 		dns.FlushCacheWithDefaultResolver()
 	}()
-}
-
-func handleGetCurrentProfileName() string {
-	if state.CurrentState == nil {
-		return ""
-	}
-	return state.CurrentState.CurrentProfileName
 }
 
 func (result ActionResult) send() {
@@ -246,19 +214,10 @@ func (result ActionResult) send() {
 
 func nextHandle(action *Action, result ActionResult) bool {
 	switch action.Method {
-	case getAndroidVpnOptionsMethod:
-		result.success(handleGetAndroidVpnOptions())
-		return true
 	case updateDnsMethod:
 		data := action.Data.(string)
 		handleUpdateDns(data)
 		result.success(true)
-		return true
-	case getRunTimeMethod:
-		result.success(handleGetRunTime())
-		return true
-	case getCurrentProfileNameMethod:
-		result.success(handleGetCurrentProfileName())
 		return true
 	}
 	return false
@@ -298,9 +257,9 @@ func quickStart(initParamsChar *C.char, paramsChar *C.char, stateParamsChar *C.c
 }
 
 //export startTUN
-func startTUN(callback unsafe.Pointer, fd C.int) bool {
+func startTUN(callback unsafe.Pointer, fd C.int, addressChar, dnsChar *C.char) bool {
 	go func() {
-		handleStartTun(int(fd), callback)
+		handleStartTun(callback, int(fd), C.GoString(addressChar), C.GoString(dnsChar))
 	}()
 	return true
 }
@@ -329,20 +288,9 @@ func stopTun() {
 	}()
 }
 
-//export getCurrentProfileName
-func getCurrentProfileName() *C.char {
-	return C.CString(handleGetCurrentProfileName())
-}
-
-//export getAndroidVpnOptions
-func getAndroidVpnOptions() *C.char {
-	return C.CString(handleGetAndroidVpnOptions())
-}
-
-//export setState
-func setState(s *C.char) {
-	paramsString := C.GoString(s)
-	handleSetState(paramsString)
+//export forceGc
+func forceGc() {
+	handleForceGc()
 }
 
 //export updateDns

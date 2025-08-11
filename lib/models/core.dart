@@ -66,35 +66,21 @@ class UpdateParams with _$UpdateParams {
 }
 
 @freezed
-class CoreState with _$CoreState {
-  const factory CoreState({
-    @JsonKey(name: 'vpn-props') required VpnProps vpnProps,
-    @JsonKey(name: 'only-statistics-proxy') required bool onlyStatisticsProxy,
-    @JsonKey(name: 'current-profile-name') required String currentProfileName,
-    @JsonKey(name: 'bypass-domain') @Default([]) List<String> bypassDomain,
-  }) = _CoreState;
-
-  factory CoreState.fromJson(Map<String, Object?> json) =>
-      _$CoreStateFromJson(json);
-}
-
-@freezed
-class AndroidVpnOptions with _$AndroidVpnOptions {
-  const factory AndroidVpnOptions({
+class VpnOptions with _$VpnOptions {
+  const factory VpnOptions({
     required bool enable,
     required int port,
-    required AccessControl? accessControl,
+    required bool ipv6,
+    @Default(false) bool dnsHijacking,
+    required AccessControl accessControl,
     required bool allowBypass,
     required bool systemProxy,
     required List<String> bypassDomain,
-    required String ipv4Address,
-    required String ipv6Address,
     @Default([]) List<String> routeAddress,
-    required String dnsServerAddress,
-  }) = _AndroidVpnOptions;
+  }) = _VpnOptions;
 
-  factory AndroidVpnOptions.fromJson(Map<String, Object?> json) =>
-      _$AndroidVpnOptionsFromJson(json);
+  factory VpnOptions.fromJson(Map<String, Object?> json) =>
+      _$VpnOptionsFromJson(json);
 }
 
 @freezed

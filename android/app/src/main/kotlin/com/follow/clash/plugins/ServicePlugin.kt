@@ -66,7 +66,7 @@ class ServicePlugin : FlutterPlugin, MethodChannel.MethodCallHandler {
         result.success(true)
     }
 
-    private fun handleGetRunTime(result: MethodChannel.Result){
+    private fun handleGetRunTime(result: MethodChannel.Result) {
         return result.success(AppState.runTime)
     }
 }

@@ -7,9 +7,12 @@
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_follow_clash_core_Core_startTun(JNIEnv *env, jobject, const jint fd, jobject cb) {
+Java_com_follow_clash_core_Core_startTun(JNIEnv *env, jobject thiz, jint fd, jobject cb,
+                                         jstring address, jstring dns) {
     const auto interface = new_global(cb);
-    startTUN(interface, fd);
+    scoped_string ac = get_string(address);
+    scoped_string dc = get_string(dns);
+    startTUN(interface, fd, ac, dc);
 }
 
 extern "C"
@@ -21,7 +24,14 @@ Java_com_follow_clash_core_Core_stopTun(JNIEnv *) {
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_forceGC(JNIEnv *env, jobject thiz) {
-    // forceGC();
+    forceGC();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_follow_clash_core_Core_updateDNS(JNIEnv *env, jobject thiz, jstring dns) {
+    scoped_string dc = get_string(dns);
+    updateDns(dc);
 }
 
 extern "C"
@@ -107,12 +117,15 @@ JNI_OnLoad(JavaVM *vm, void *) {
 #else
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_follow_clash_core_Core_startTun(JNIEnv *env, jobject thiz, jint fd, jobject cb) {
+Java_com_follow_clash_core_Core_startTun(JNIEnv *env, jobject thiz, jint fd, jobject cb,
+                                         jstring address, jstring dns) {
+    // TODO: implement startTun()
 }
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_stopTun(JNIEnv *env, jobject thiz) {
+    // TODO: implement stopTun()
 }
 
 extern "C"
@@ -125,5 +138,11 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_follow_clash_core_Core_forceGC(JNIEnv *env, jobject thiz) {
     // TODO: implement forceGC()
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_follow_clash_core_Core_updateDNS(JNIEnv *env, jobject thiz, jstring dns) {
+    // TODO: implement updateDNS()
 }
 #endif

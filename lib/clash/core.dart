@@ -80,10 +80,6 @@ class ClashCore {
     );
   }
 
-  Future<bool> setState(CoreState state) async {
-    return await clashInterface.setState(state);
-  }
-
   Future<void> shutdown() async {
     await clashInterface.shutdown();
   }

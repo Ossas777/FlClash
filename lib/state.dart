@@ -256,16 +256,6 @@ class GlobalState {
     }
   }
 
-  CoreState getCoreState() {
-    final currentProfile = config.currentProfile;
-    return CoreState(
-      vpnProps: config.vpnProps,
-      onlyStatisticsProxy: config.appSetting.onlyStatisticsProxy,
-      currentProfileName: currentProfile?.label ?? currentProfile?.id ?? '',
-      bypassDomain: config.networkProps.bypassDomain,
-    );
-  }
-
   Future<SetupParams> getSetupParams({
     required ClashConfig pathConfig,
   }) async {

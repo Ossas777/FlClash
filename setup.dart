@@ -153,7 +153,10 @@ class Build {
       assert(ndk != null);
       final prebuiltDir =
           Directory(join(ndk!, 'toolchains', 'llvm', 'prebuilt'));
-      final prebuiltDirList = prebuiltDir.listSync();
+      final prebuiltDirList = prebuiltDir
+          .listSync()
+          .where((file) => !basename(file.path).startsWith('.'))
+          .toList();
       final map = {
         'armeabi-v7a': 'armv7a-linux-androideabi21-clang',
         'arm64-v8a': 'aarch64-linux-android21-clang',
