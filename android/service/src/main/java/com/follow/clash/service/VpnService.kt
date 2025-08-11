@@ -26,7 +26,11 @@ class VpnService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
-        QuickAction.START.quickIntent.toPendingIntent.send()
+        if (!State.inApp) {
+            QuickAction.START.quickIntent.toPendingIntent.send()
+        } else {
+            State.inApp = false
+        }
     }
 
     private val connectivity by lazy {

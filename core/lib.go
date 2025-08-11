@@ -288,9 +288,9 @@ func stopTun() {
 	}()
 }
 
-//export forceGc
-func forceGc() {
-	handleForceGc()
+//export forceGC
+func forceGC() {
+	handleForceGC()
 }
 
 //export updateDns

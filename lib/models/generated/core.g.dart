@@ -80,7 +80,7 @@ _$VpnOptionsImpl _$$VpnOptionsImplFromJson(Map<String, dynamic> json) =>
       enable: json['enable'] as bool,
       port: (json['port'] as num).toInt(),
       ipv6: json['ipv6'] as bool,
-      dnsHijacking: json['dnsHijacking'] as bool? ?? false,
+      dnsHijacking: json['dnsHijacking'] as bool,
       accessControl:
           AccessControl.fromJson(json['accessControl'] as Map<String, dynamic>),
       allowBypass: json['allowBypass'] as bool,

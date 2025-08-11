@@ -67,7 +67,7 @@ func handleGetIsInit() bool {
 	return isInit
 }
 
-func handleForceGc() {
+func handleForceGC() {
 	go func() {
 		log.Infoln("[APP] request force GC")
 		runtime.GC()

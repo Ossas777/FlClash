@@ -847,7 +847,7 @@ class _$VpnOptionsImpl implements _VpnOptions {
       {required this.enable,
       required this.port,
       required this.ipv6,
-      this.dnsHijacking = false,
+      required this.dnsHijacking,
       required this.accessControl,
       required this.allowBypass,
       required this.systemProxy,
@@ -866,7 +866,6 @@ class _$VpnOptionsImpl implements _VpnOptions {
   @override
   final bool ipv6;
   @override
-  @JsonKey()
   final bool dnsHijacking;
   @override
   final AccessControl accessControl;
@@ -953,7 +952,7 @@ abstract class _VpnOptions implements VpnOptions {
       {required final bool enable,
       required final int port,
       required final bool ipv6,
-      final bool dnsHijacking,
+      required final bool dnsHijacking,
       required final AccessControl accessControl,
       required final bool allowBypass,
       required final bool systemProxy,

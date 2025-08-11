@@ -71,7 +71,7 @@ class VpnOptions with _$VpnOptions {
     required bool enable,
     required int port,
     required bool ipv6,
-    @Default(false) bool dnsHijacking,
+    required bool dnsHijacking,
     required AccessControl accessControl,
     required bool allowBypass,
     required bool systemProxy,

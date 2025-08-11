@@ -10,6 +10,7 @@ import android.net.NetworkCapabilities.TRANSPORT_USB
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.core.content.getSystemService
+import com.follow.clash.core.Core
 import com.follow.clash.service.VpnService
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -17,8 +18,7 @@ import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
 
 private data class NetworkInfo(
-    @Volatile var losingMs: Long = 0,
-    @Volatile var dnsList: List<InetAddress> = emptyList()
+    @Volatile var losingMs: Long = 0, @Volatile var dnsList: List<InetAddress> = emptyList()
 ) {
     fun isAvailable(): Boolean = losingMs < System.currentTimeMillis()
 }
@@ -94,6 +94,7 @@ class NetworkObserveModule(private val service: Service) : Module() {
     fun onUpdateNetwork() {
         val dnsList = (networkInfos.asSequence().minByOrNull { networkToInt(it) }?.value?.dnsList
             ?: emptyList()).map { x -> x.asSocketAddressText(53) }
+        Core.updateDNS(dnsList.joinToString { "," })
     }
 
     fun setUnderlyingNetworks(network: Network) {
@@ -111,11 +112,9 @@ class NetworkObserveModule(private val service: Service) : Module() {
 
 fun InetAddress.asSocketAddressText(port: Int): String {
     return when (this) {
-        is Inet6Address ->
-            "[${numericToTextFormat(this)}]:$port"
+        is Inet6Address -> "[${numericToTextFormat(this)}]:$port"
 
-        is Inet4Address ->
-            "${this.hostAddress}:$port"
+        is Inet4Address -> "${this.hostAddress}:$port"
 
         else -> throw IllegalArgumentException("Unsupported Inet type ${this.javaClass}")
     }
@@ -127,8 +126,7 @@ private fun numericToTextFormat(address: Inet6Address): String {
     for (i in 0 until 8) {
         sb.append(
             Integer.toHexString(
-                src[i shl 1].toInt() shl 8 and 0xff00
-                        or (src[(i shl 1) + 1].toInt() and 0xff)
+                src[i shl 1].toInt() shl 8 and 0xff00 or (src[(i shl 1) + 1].toInt() and 0xff)
             )
         )
         if (i < 7) {

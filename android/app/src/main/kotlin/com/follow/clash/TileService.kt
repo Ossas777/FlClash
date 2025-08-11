@@ -6,7 +6,8 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
-import com.follow.clash.common.Components
+import com.follow.clash.common.QuickAction
+import com.follow.clash.common.quickIntent
 import com.follow.clash.common.toPendingIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,15 +34,15 @@ class TileService : TileService() {
         scope?.cancel()
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope?.launch {
-            AppState.runStateFlow.collect {
+            State.runStateFlow.collect {
                 updateTile(it)
             }
         }
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
-    private fun activityTransfer() {
-        val intent = Intent().setComponent(Components.TEMP_ACTIVITY)
+    private fun handleToToggle() {
+        val intent = QuickAction.TOGGLE.quickIntent
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         val pendingIntent = intent.toPendingIntent
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -53,8 +54,7 @@ class TileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        activityTransfer()
-        AppState.handleToggle()
+        handleToToggle()
     }
 
     override fun onStopListening() {

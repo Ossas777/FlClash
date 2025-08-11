@@ -27,6 +27,7 @@ extern void release_string(char **str);
                     JNIEnv *env = _jni.env
 
 #define scoped_string __attribute__((cleanup(release_string))) char*
+#define scoped_const_string __attribute__((cleanup(release_string))) const char*
 
 #define find_class(name) env->FindClass(name)
 #define find_method(cls, name, signature) env->GetMethodID(cls, name, signature)

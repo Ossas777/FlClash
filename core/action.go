@@ -46,7 +46,7 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleGetIsInit())
 		return
 	case forceGcMethod:
-		handleForceGc()
+		handleForceGC()
 		result.success(true)
 		return
 	case shutdownMethod:

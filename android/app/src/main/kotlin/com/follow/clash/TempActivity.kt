@@ -10,15 +10,15 @@ class TempActivity : Activity() {
         super.onCreate(savedInstanceState)
         when (intent.action) {
             QuickAction.START.value -> {
-//                GlobalState.handleStart()
+                State.handleStartService()
             }
 
             QuickAction.STOP.value -> {
-//                GlobalState.handleStop()
+                State.handleStopService()
             }
 
             QuickAction.TOGGLE.value -> {
-//                GlobalState.handleToggle()
+                State.handleToggle()
             }
         }
         finish()
