@@ -12,11 +12,11 @@ class MainActivity : FlutterActivity() {
         flutterEngine.plugins.add(AppPlugin())
         flutterEngine.plugins.add(ServicePlugin())
         flutterEngine.plugins.add(TilePlugin())
-        AppState.flutterEngine = flutterEngine
+        State.flutterEngine = flutterEngine
     }
 
     override fun onDestroy() {
-        AppState.flutterEngine = null
+        State.flutterEngine = null
         super.onDestroy()
     }
 }

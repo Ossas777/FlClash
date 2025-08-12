@@ -54,7 +54,9 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     private lateinit var scope: CoroutineScope
 
-    private var vpnCallBack: (() -> Unit)? = null
+    private var vpnPrepareCallback: (() -> Unit)? = null
+
+    private var requestNotificationCallback: (() -> Unit)? = null
 
     private val iconMap = mutableMapOf<String, String?>()
 
@@ -262,15 +264,16 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         }
     }
 
-    fun requestNotificationsPermission() {
+    fun requestNotificationsPermission(callBack: () -> Unit) {
+        requestNotificationCallback = callBack
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val permission = ContextCompat.checkSelfPermission(
                 GlobalState.application, Manifest.permission.POST_NOTIFICATIONS
             )
-            if (permission == PackageManager.PERMISSION_GRANTED) {
+            if (permission == PackageManager.PERMISSION_GRANTED || isBlockNotification) {
+                invokeRequestNotificationCallback()
                 return
             }
-            if (isBlockNotification) return
             activityRef?.get()?.let {
                 ActivityCompat.requestPermissions(
                     it,
@@ -282,14 +285,24 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         }
     }
 
+    fun invokeRequestNotificationCallback() {
+        requestNotificationCallback?.invoke()
+        requestNotificationCallback = null
+    }
+
     fun startVpnService(callBack: () -> Unit) {
-        vpnCallBack = callBack
+        vpnPrepareCallback = callBack
         val intent = VpnService.prepare(GlobalState.application)
         if (intent != null) {
             activityRef?.get()?.startActivityForResult(intent, VPN_PERMISSION_REQUEST_CODE)
             return
         }
-        vpnCallBack?.invoke()
+        invokeVpnPrepareCallback()
+    }
+
+    fun invokeVpnPrepareCallback() {
+        vpnPrepareCallback?.invoke()
+        vpnPrepareCallback = null
     }
 
     private fun isChinaPackage(packageName: String): Boolean {
@@ -393,7 +406,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
     private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         if (requestCode == VPN_PERMISSION_REQUEST_CODE) {
             if (resultCode == FlutterActivity.RESULT_OK) {
-                vpnCallBack?.invoke()
+                invokeVpnPrepareCallback()
             }
         }
         return true
@@ -405,6 +418,7 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
             isBlockNotification = true
         }
+        invokeRequestNotificationCallback()
         return true
     }
 }

@@ -190,26 +190,21 @@ class GlobalState {
     );
   }
 
-  // Future<Map<String, dynamic>> getProfileMap(String id) async {
-  //   final profilePath = await appPath.getProfilePath(id);
-  //   final res = await Isolate.run<Result<dynamic>>(() async {
-  //     try {
-  //       final file = File(profilePath);
-  //       if (!await file.exists()) {
-  //         return Result.error("");
-  //       }
-  //       final value = await file.readAsString();
-  //       return Result.success(utils.convertYamlNode(loadYaml(value)));
-  //     } catch (e) {
-  //       return Result.error(e.toString());
-  //     }
-  //   });
-  //   if (res.isSuccess) {
-  //     return res.data as Map<String, dynamic>;
-  //   } else {
-  //     throw res.message;
-  //   }
-  // }
+  VpnOptions getVpnOptions() {
+    final vpnProps = config.vpnProps;
+    final networkProps = config.networkProps;
+    final port = config.patchClashConfig.mixedPort;
+    return VpnOptions(
+      enable: vpnProps.enable,
+      systemProxy: networkProps.systemProxy,
+      port: port,
+      ipv6: vpnProps.ipv6,
+      dnsHijacking: vpnProps.dnsHijacking,
+      accessControl: vpnProps.accessControl,
+      allowBypass: vpnProps.allowBypass,
+      bypassDomain: networkProps.bypassDomain,
+    );
+  }
 
   Future<T?> showCommonDialog<T>({
     required Widget child,
@@ -254,16 +249,6 @@ class GlobalState {
       preferences.clearClashConfig();
       preferences.saveConfig(config);
     }
-  }
-
-  CoreState getCoreState() {
-    final currentProfile = config.currentProfile;
-    return CoreState(
-      vpnProps: config.vpnProps,
-      onlyStatisticsProxy: config.appSetting.onlyStatisticsProxy,
-      currentProfileName: currentProfile?.label ?? currentProfile?.id ?? '',
-      bypassDomain: config.networkProps.bypassDomain,
-    );
   }
 
   Future<SetupParams> getSetupParams({

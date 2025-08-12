@@ -71,18 +71,6 @@ mixin ClashInterface {
   FutureOr<bool> closeConnections();
 
   FutureOr<bool> resetConnections();
-
-  Future<bool> setState(CoreState state);
-}
-
-mixin AndroidClashInterface {
-  Future<bool> updateDns(String value);
-
-  Future<AndroidVpnOptions?> getAndroidVpnOptions();
-
-  Future<String> getCurrentProfileName();
-
-  Future<DateTime?> getRunTime();
 }
 
 abstract class ClashHandlerInterface with ClashInterface {
@@ -101,15 +89,6 @@ abstract class ClashHandlerInterface with ClashInterface {
     return await invoke<bool>(
           method: ActionMethod.initClash,
           data: json.encode(params),
-        ) ??
-        false;
-  }
-
-  @override
-  Future<bool> setState(CoreState state) async {
-    return await invoke<bool>(
-          method: ActionMethod.setState,
-          data: json.encode(state),
         ) ??
         false;
   }

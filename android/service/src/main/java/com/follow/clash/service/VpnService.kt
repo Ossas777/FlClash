@@ -6,19 +6,19 @@ import android.net.ProxyInfo
 import android.net.VpnService
 import android.os.Build
 import android.util.Log
-import com.follow.clash.core.Core
-import com.follow.clash.service.models.VpnOptions
-import com.follow.clash.service.models.getIpv4RouteAddress
-import com.follow.clash.service.models.getIpv6RouteAddress
-import com.follow.clash.service.models.toCIDR
-import java.net.InetSocketAddress
 import androidx.core.content.getSystemService
 import com.follow.clash.common.AccessControlMode
 import com.follow.clash.common.QuickAction
 import com.follow.clash.common.quickIntent
 import com.follow.clash.common.toPendingIntent
+import com.follow.clash.core.Core
+import com.follow.clash.service.models.VpnOptions
+import com.follow.clash.service.models.getIpv4RouteAddress
+import com.follow.clash.service.models.getIpv6RouteAddress
+import com.follow.clash.service.models.toCIDR
 import com.follow.clash.service.modules.NetworkObserveModule
 import com.follow.clash.service.modules.NotificationModule
+import java.net.InetSocketAddress
 
 class VpnService : VpnService() {
     val notificationModule = NotificationModule(this)
@@ -26,7 +26,11 @@ class VpnService : VpnService() {
 
     override fun onCreate() {
         super.onCreate()
-        QuickAction.START.quickIntent.toPendingIntent.send()
+        if (!State.inApp) {
+            QuickAction.START.quickIntent.toPendingIntent.send()
+        } else {
+            State.inApp = false
+        }
     }
 
     private val connectivity by lazy {
@@ -66,42 +70,67 @@ class VpnService : VpnService() {
         return uidPageNameMap[nextUid] ?: ""
     }
 
+    val VpnOptions.address
+        get(): String = buildString {
+            append(IPV4_ADDRESS)
+            if (ipv6) {
+                append(",")
+                append(IPV6_ADDRESS)
+            }
+        }
+
+    val VpnOptions.dns
+        get(): String {
+            if (dnsHijacking) {
+                return NET_ANY
+            }
+            return buildString {
+                append(DNS)
+                if (ipv6) {
+                    append(",")
+                    append(DNS6)
+                }
+            }
+        }
 
     private fun handleStart(options: VpnOptions) {
         notificationModule.install()
         networkObserveModule.install()
         val fd = with(Builder()) {
-            if (options.ipv4Address.isNotEmpty()) {
-                val cidr = options.ipv4Address.toCIDR()
-                addAddress(cidr.address, cidr.prefixLength)
-                Log.d(
-                    "addAddress", "address: ${cidr.address} prefixLength:${cidr.prefixLength}"
-                )
-                val routeAddress = options.getIpv4RouteAddress()
-                if (routeAddress.isNotEmpty()) {
-                    try {
-                        routeAddress.forEach { i ->
-                            Log.d(
-                                "addRoute4", "address: ${i.address} prefixLength:${i.prefixLength}"
-                            )
-                            addRoute(i.address, i.prefixLength)
-                        }
-                    } catch (_: Exception) {
-                        addRoute("0.0.0.0", 0)
+            val cidr = IPV4_ADDRESS.toCIDR()
+            addAddress(cidr.address, cidr.prefixLength)
+            Log.d(
+                "addAddress", "address: ${cidr.address} prefixLength:${cidr.prefixLength}"
+            )
+            val routeAddress = options.getIpv4RouteAddress()
+            if (routeAddress.isNotEmpty()) {
+                try {
+                    routeAddress.forEach { i ->
+                        Log.d(
+                            "addRoute4", "address: ${i.address} prefixLength:${i.prefixLength}"
+                        )
+                        addRoute(i.address, i.prefixLength)
                     }
-                } else {
-                    addRoute("0.0.0.0", 0)
+                } catch (_: Exception) {
+                    addRoute(NET_ANY, 0)
                 }
             } else {
-                addRoute("0.0.0.0", 0)
+                addRoute(NET_ANY, 0)
             }
-            try {
-                if (options.ipv6Address.isNotEmpty()) {
-                    val cidr = options.ipv6Address.toCIDR()
+            if (options.ipv6) {
+                try {
+                    val cidr = IPV6_ADDRESS.toCIDR()
                     Log.d(
                         "addAddress6", "address: ${cidr.address} prefixLength:${cidr.prefixLength}"
                     )
                     addAddress(cidr.address, cidr.prefixLength)
+                } catch (_: Exception) {
+                    Log.d(
+                        "addAddress6", "IPv6 is not supported."
+                    )
+                }
+
+                try {
                     val routeAddress = options.getIpv6RouteAddress()
                     if (routeAddress.isNotEmpty()) {
                         try {
@@ -116,15 +145,16 @@ class VpnService : VpnService() {
                             addRoute("::", 0)
                         }
                     } else {
-                        addRoute("::", 0)
+                        addRoute(NET_ANY6, 0)
                     }
+                } catch (_: Exception) {
+                    addRoute(NET_ANY6, 0)
                 }
-            } catch (_: Exception) {
-                Log.d(
-                    "addAddress6", "IPv6 is not supported."
-                )
             }
-            addDnsServer(options.dnsServerAddress)
+            addDnsServer(DNS)
+            if (options.ipv6) {
+                addDnsServer(DNS6)
+            }
             setMtu(9000)
             options.accessControl.let { accessControl ->
                 if (accessControl.enable) {
@@ -161,7 +191,13 @@ class VpnService : VpnService() {
             establish()?.detachFd()
                 ?: throw NullPointerException("Establish VPN rejected by system")
         }
-        Core.startTun(fd, protect = this::protect, resolverProcess = this::resolverProcess)
+        Core.startTun(
+            fd,
+            protect = this::protect,
+            resolverProcess = this::resolverProcess,
+            options.address,
+            options.dns
+        )
     }
 
     override fun onLowMemory() {
@@ -174,5 +210,14 @@ class VpnService : VpnService() {
         networkObserveModule.uninstall()
         Core.stopTun()
         stopSelf()
+    }
+
+    companion object {
+        private const val IPV4_ADDRESS = "172.19.0.1/30"
+        private const val IPV6_ADDRESS = "fdfe:dcba:9876::1/126"
+        private const val DNS = "172.19.0.2"
+        private const val DNS6 = "fdfe:dcba:9876::2"
+        private const val NET_ANY = "0.0.0.0"
+        private const val NET_ANY6 = "::"
     }
 }

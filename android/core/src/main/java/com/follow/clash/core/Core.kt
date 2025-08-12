@@ -7,10 +7,16 @@ import java.net.URL
 data object Core {
     private external fun startTun(
         fd: Int,
-        cb: TunInterface
+        cb: TunInterface,
+        address: String,
+        dns: String,
     )
 
     external fun forceGC(
+    )
+
+    external fun updateDNS(
+        dns: String,
     )
 
     private fun parseInetSocketAddress(address: String): InetSocketAddress {
@@ -22,7 +28,9 @@ data object Core {
     fun startTun(
         fd: Int,
         protect: (Int) -> Boolean,
-        resolverProcess: (protocol: Int, source: InetSocketAddress, target: InetSocketAddress, uid: Int) -> String
+        resolverProcess: (protocol: Int, source: InetSocketAddress, target: InetSocketAddress, uid: Int) -> String,
+        address: String,
+        dns: String,
     ) {
         startTun(
             fd,
@@ -45,6 +53,8 @@ data object Core {
                     )
                 }
             },
+            address,
+            dns
         )
     }
 

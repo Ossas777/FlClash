@@ -46,7 +46,7 @@ func handleAction(action *Action, result ActionResult) {
 		result.success(handleGetIsInit())
 		return
 	case forceGcMethod:
-		handleForceGc()
+		handleForceGC()
 		result.success(true)
 		return
 	case shutdownMethod:
@@ -74,10 +74,12 @@ func handleAction(action *Action, result ActionResult) {
 		})
 		return
 	case getTrafficMethod:
-		result.success(handleGetTraffic())
+		data := action.Data.(bool)
+		result.success(handleGetTraffic(data))
 		return
 	case getTotalTrafficMethod:
-		result.success(handleGetTotalTraffic())
+		data := action.Data.(bool)
+		result.success(handleGetTotalTraffic(data))
 		return
 	case resetTrafficMethod:
 		handleResetTraffic()
@@ -176,10 +178,6 @@ func handleAction(action *Action, result ActionResult) {
 			result.success(value)
 		})
 		return
-	case setStateMethod:
-		data := action.Data.(string)
-		handleSetState(data)
-		result.success(true)
 	case crashMethod:
 		result.success(true)
 		handleCrash()

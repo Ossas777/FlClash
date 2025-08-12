@@ -3,6 +3,8 @@ import 'dart:isolate';
 
 import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/common/system.dart';
+import 'package:fl_clash/models/core.dart';
+import 'package:fl_clash/state.dart';
 import 'package:flutter/services.dart';
 
 class Service {
@@ -12,6 +14,14 @@ class Service {
 
   Service._internal() {
     methodChannel = const MethodChannel('$packageName/service');
+    methodChannel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'getVpnOptions':
+          return handleGetVpnOptions();
+        default:
+          throw MissingPluginException();
+      }
+    });
   }
 
   factory Service() {
@@ -21,6 +31,10 @@ class Service {
 
   Future<T?> invokeAction<T>(String data) async {
     return await methodChannel.invokeMethod<T>('invokeAction', data);
+  }
+
+  VpnOptions handleGetVpnOptions() {
+    return globalState.getVpnOptions();
   }
 
   Future<bool> start<T>() async {

@@ -17,14 +17,13 @@ data class AccessControl(
 data class VpnOptions(
     val enable: Boolean,
     val port: Int,
+    val ipv6: Boolean,
+    val dnsHijacking: Boolean,
     val accessControl: AccessControl,
     val allowBypass: Boolean,
     val systemProxy: Boolean,
     val bypassDomain: List<String>,
     val routeAddress: List<String>,
-    val ipv4Address: String,
-    val ipv6Address: String,
-    val dnsServerAddress: String,
 ) : Parcelable
 
 data class CIDR(val address: InetAddress, val prefixLength: Int)
@@ -69,8 +68,8 @@ fun String.toCIDR(): CIDR {
         throw IllegalArgumentException("Invalid CIDR format")
     }
     val ipAddress = parts[0]
-    val prefixLength = parts[1].toIntOrNull()
-        ?: throw IllegalArgumentException("Invalid prefix length")
+    val prefixLength =
+        parts[1].toIntOrNull() ?: throw IllegalArgumentException("Invalid prefix length")
 
     val address = InetAddress.getByName(ipAddress)
 

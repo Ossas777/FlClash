@@ -57,6 +57,11 @@ class App {
     });
   }
 
+  Future<bool?> requestNotificationsPermission() async {
+    return await methodChannel
+        .invokeMethod<bool>('requestNotificationsPermission');
+  }
+
   Future<bool> openFile(String path) async {
     return await methodChannel.invokeMethod<bool>('openFile', {
           'path': path,

@@ -18,8 +18,9 @@ class RemoteService : Service() {
             }
         }
 
-        override fun syncVpnOptions(options: VpnOptions?) {
+        override fun syncVpnOptions(options: VpnOptions?, inApp: Boolean) {
             State.options = options
+            State.inApp = inApp
         }
 
         override fun updateNotificationParams(params: NotificationParams?) {
